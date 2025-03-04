@@ -1,13 +1,17 @@
-#include "Emetteur_pm.hpp"
+#include "Emetteur_PM.hpp"
 #include <iostream>
 
-EmetteurPM::EmetteurPM(double Fe, double Ts)
+EmetteurPM::EmetteurPM(const int n_elmts, double Fe, double Ts)
     : Stateful()
-    , Fe(Fe), Ts(Ts) {
+    , n_elmts(n_elmts), Fe(Fe), Ts(Ts) {
     Fse = static_cast<int>(Fe * Ts);
     len_p = Fse;
 
-    std::vector<std::vector<double>> porte(2, std::vector<double>(len_p, 0));
+    //std::vector<std::vector<double>> porte(2, std::vector<double>(len_p, 0));
+    porte = new double*[2];
+    porte[0] = new double[len_p];
+    porte[1] = new double[len_p];
+
     for (int i = 0; i < len_p / 2; ++i) {
         porte[0][i] = 0;
         porte[0][i + len_p / 2] = 1;
@@ -39,13 +43,12 @@ EmetteurPM::EmetteurPM(double Fe, double Ts)
 
 }
 
-void EmetteurPM::process(const double * input, double * output) {
-    int len_input = input.size();
-    //std::vector<double> sl(len_input * len_p, 0.0);
+void EmetteurPM::process(const double* input, double* output) {
+    for (int i = 0; i < n_elmts; ++i) {
+        // Assurez-vous que input[i] est un index valide pour porte
+        int index = static_cast<int>(input[i]);
 
-    for (int i = 0; i < len_input; ++i) {
-        std::copy(porte[input[i]].begin(), porte[input[i]].end(), output.begin() + i * len_p);
+        // Utilisation correcte de std::copy avec des pointeurs
+        std::copy(porte[index], porte[index]+len_p, output + i * len_p);
     }
-
-    //return sl;
 }

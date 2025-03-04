@@ -4,7 +4,7 @@
 #include <random>
 #include <numeric> // for std::accumulate
 
-Canal::Canal(const int n_elmts)
+Canal::Canal(const int n_elmts,const double SNR, const int len_p)
     : Stateful()
     ,n_elmts(n_elmts), SNR(SNR), len_p(len_p) {
 
@@ -33,15 +33,17 @@ Canal::Canal(const int n_elmts)
 
 }
 
-void Canal::process(const double * sl, double output) {
+void Canal::process(const double * sl, double * output) {
     double Eb = calculateEb(sl);
-    std::vector<double> b = generateNoise(len_p);
+    std::cout << "Eb " << Eb << std::endl;
+    double * noise = generateNoise();
 
     double sigma = std::sqrt(len_p * (Eb / SNR) / 2);
+    std::cout << "sigma  " << sigma << std::endl;
 
-    std::vector<double> yl(sl.size());
-    for (size_t i = 0; i < sl.size(); ++i) {
-        yl[i] = sl[i] + b[i] * sigma;
+    //std::vector<double> yl(sl.size());
+    for (size_t i = 0; i < n_elmts; ++i) {
+        output[i] = sl[i] + noise[i] * sigma;
     }
 
 
@@ -49,10 +51,10 @@ void Canal::process(const double * sl, double output) {
 }
 
 double Canal::calculateEb(const double * sl) {
-    double sum = std::accumulate(sl.begin(), sl.end(), 0.0, [](double acc, double val) {
+    double sum = std::accumulate(sl, std::next(sl, n_elmts), 0.0, [](double acc, double val) {
         return acc + val * val;
     });
-    return sum / sl.size();
+    return sum / n_elmts;
 }
 
 double * Canal::generateNoise() {
@@ -60,8 +62,9 @@ double * Canal::generateNoise() {
     std::mt19937 gen(rd());
     std::normal_distribution<> d(0, 1);
 
-    std::vector<double> noise(len_p * n_elmts);
-    for (int i = 0; i < len_p * len_entre; ++i) {
+    //std::vector<double> noise(len_p * n_elmts);
+    double * noise = new double[n_elmts];
+    for (int i = 0; i < n_elmts; ++i) {
         noise[i] = d(gen);
     }
     return noise;

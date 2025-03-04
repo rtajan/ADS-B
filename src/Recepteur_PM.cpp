@@ -9,20 +9,16 @@ RecepteurPM::RecepteurPM(const int n_elmts, double Fe, double Ts)
     Fse = static_cast<int>(Fe * Ts);
     len_p = Fse;
 
-    std::vector<std::vector<double>> porte(2, std::vector<double>(len_p, 0));
+    porte = new double*[2];
+    porte[0] = new double[len_p];
+    porte[1] = new double[len_p];
+
     for (int i = 0; i < len_p / 2; ++i) {
         porte[0][i] = 0;
         porte[0][i + len_p / 2] = 1;
         porte[1][i] = 1;
         porte[1][i + len_p / 2] = 0;
     }
-
-    //porte = {
-    //    std::vector<double>(len_p / 2, 0.0),
-    //    std::vector<double>(len_p / 2, 1.0),
-    //    std::vector<double>(len_p / 2, 1.0),
-    //    std::vector<double>(len_p / 2, 0.0)
-    //};
 
     const std::string name = "RecepteurPM";
     this->set_name(name);
@@ -56,26 +52,29 @@ void RecepteurPM::process(const double* yl, double* output) {
         rk.push_back(rl[i]);
     }
 
-    double v0 = std::accumulate(porte[1].begin(), porte[1].end(), 0.0,
+    double v0 = std::accumulate(porte[1], porte[1]+len_p, 0.0,
                                 [](double acc, double val) { return acc + val * val; });
 
-    std::vector<double> output(rk.size() / 2, 0);  //problem for the length of rk (we don't know it)
+    //std::vector<double> output(rk.size() / 2, 0);  //problem for the length of rk (we don't know it)
     for (size_t i = 0; i < rk.size() / 2; ++i) {
-        std::vector<double> point = {rk[i * 2], rk[i * 2 + 1]};
-        if (dist_eucl(point) > dist_eucl(point)) {
+        double point[2] = {rk[i * 2], rk[i * 2 + 1]};
+        double compare_l[2] = {point[0], point[1]-v0};
+        double compare_r[2] = {point[0]-v0, point[1]};
+
+        if (dist_eucl(compare_l) > dist_eucl(compare_r)) {
             output[i] = 1;
         } else {
             output[i] = 0;
         }
     }
 
-    #return sortie;
+    //return sortie;
 }
 
-double* RecepteurPM::convolution(const double* signal, const double* filtre) {
-    std::vector<double> result(signal.size() + filtre.size() - 1, 0.0);
-    for (size_t n = 0; n < signal.size(); ++n) {
-        for (size_t k = 0; k < filtre.size(); ++k) {
+std::vector<double> RecepteurPM::convolution(const double* signal, double* filtre) {
+    std::vector<double> result(n_elmts + len_p - 1, 0.0);
+    for (size_t n = 0; n < n_elmts; ++n) {
+        for (size_t k = 0; k < len_p; ++k) {
             result[n + k] += signal[n] * filtre[k];
         }
     }

@@ -19,10 +19,10 @@ private:
     double Ts;
     int Fse;
     int len_p;
-    double* porte;
+    double ** porte;
 
-    double* convolution(const double* signal, const double* filtre);
-    double dist_eucl(const double vec);
+    std::vector<double> convolution(const double* signal, double* filtre);
+    double dist_eucl(const double * vec);
 };
 
 #endif // RECEPTEUR_PM_H

@@ -1,5 +1,6 @@
 #include "Recepteur_PM.hpp"
 #include "Emetteur_PM.hpp"
+#include "Canal.hpp"
 #include <pybind11/pybind11.h>
 #include <streampu.hpp>
 
@@ -7,7 +8,7 @@ namespace py = pybind11;
 using namespace py::literals;
 
 // Create a	python module using PYBIND11
-PYBIND11_MODULE(ADS-B, m)
+PYBIND11_MODULE(ads_b, m)
 {
     auto pyspu_stateful = (py::object)py::module_::import("streampu").attr("Stateful");
 
