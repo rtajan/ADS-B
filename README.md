@@ -5,11 +5,10 @@ This project is a cutom module for PyStreamPU
 Implementation of PPM or PM modulation use in the aircraft's ADS-B system to transmit information
 
 
-Install pystreampu in order to use it
+Install pystreampu and pybind11 in order to use it
 
 https://github.com/aff3ct/pystreampu
 
-and pybind11
 
 ```
 pip install pybind11
