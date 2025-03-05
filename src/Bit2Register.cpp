@@ -1,0 +1,150 @@
+#include "Bit2Register.hpp"
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <cmath>
+#include <iterator> // Pour std::next
+
+Bit2Register::Bit2Register(const int n_elmts)
+    : Stateful()
+    ,n_elmts(n_elmts) {
+
+        const std::string name = "Bit2Register";
+        this->set_name(name);
+
+        auto& p = this->create_task("process");                                                  // Create the task
+        size_t ps_input = this->template create_socket_in<double>(p, "input", this->n_elmts);    // Create the input socket
+        size_t ps_output = this->template create_socket_out<int8_t>(p, "output", sizeof(Register)); // Create the output socket
+
+        // create the codelet
+        this->create_codelet(
+          p,
+          [ps_input, ps_output](spu::module::Module& m, spu::runtime::Task& t, const size_t frame_id) -> int
+          {
+              // Recover the Module and Sockets in the codelet
+              auto& bit2register = static_cast<Bit2Register&>(m);
+              double* input = (double*)(t[ps_input].get_dataptr());
+              Register * output = (Register *)(t[ps_output].get_dataptr());
+
+              // Process the data
+              bit2register.process(input, output);
+              return spu::runtime::status_t::SUCCESS;
+          });
+
+}
+
+void Bit2Register::process(double * input, Register * registre) {
+    // Créez un std::vector<double> à partir du tableau input
+    std::vector<double> vectl(input, input + n_elmts);
+
+    // Convertissez std::vector<double> en std::vector<bool>
+    std::vector<bool> vectbin(vectl.size());
+    for (size_t i = 0; i < vectl.size(); ++i) {
+        vectbin[i] = static_cast<bool>(vectl[i]);
+    }
+
+    auto formatBits = getRange(vectbin, 0, 5);
+    auto adresseBits = getRange(vectbin, 8, 32);
+    auto typeBits = getRange(vectbin, 32, 37);
+    registre->format = bin2dec(formatBits);
+    registre->adresse = bin2hex(adresseBits);
+    registre->type = bin2dec(typeBits);
+
+    if ((registre->type >= 9 && registre->type <= 18) || (registre->type >= 20 && registre->type <= 22)) {
+        auto altitudeBits = getRange(vectbin, 40, 47);
+        altitudeBits.insert(altitudeBits.end(), getRange(vectbin, 48, 52).begin(), getRange(vectbin, 48, 52).end());
+        registre->altitude = bin2dec(altitudeBits) * 25 - 1000;
+        registre->timeFlag = vectbin[52];
+        registre->cprFlag = vectbin[53];
+        int LAT = bin2dec(getRange(vectbin, 54, 71));
+        int LON = bin2dec(getRange(vectbin, 71, 88));
+        registre->latitude = calcLAT(registre->cprFlag, LAT, 44.806884);
+        registre->longitude = calcLON(registre->cprFlag, LON, -0.606629, registre->latitude);
+    }
+    if (registre->type >= 1 && registre->type <= 4) {
+        std::string nom = "";
+        for (int i = 0; i < 8; ++i) {
+            auto charBits = getRange(vectbin, 40 + i * 6, 46 + i * 6);
+            nom += bin2carid(charBits);
+        }
+        registre->nom = nom;
+        std::cout << nom << std::endl;
+    }
+
+    //return registre;
+}
+
+
+int Bit2Register::bin2dec(const std::vector<bool>& bits) {
+    int value = 0;
+    for (bool bit : bits) {
+        value = (value << 1) | bit;
+    }
+    return value;
+}
+
+std::string Bit2Register::bin2hex(const std::vector<bool>& bits) {
+    int value = bin2dec(bits);
+    std::stringstream ss;
+    ss << std::hex << std::setw(6) << std::setfill('0') << value;
+    return ss.str();
+}
+
+char Bit2Register::bin2carid(const std::vector<bool>& bits) {
+    return static_cast<char>(bin2dec(bits));
+}
+
+double NL(double x, int Nz) {
+    if (x == 0) {
+        return 59;
+    } else if (x == 87) {
+        return 2;
+    } else if (std::abs(x) > 87) {
+        return 1;
+    } else {
+        return std::floor(2 * M_PI *
+                          std::pow(std::acos(1 - (1 - std::cos(M_PI / (2 * Nz))) /
+                                             std::pow(std::cos(M_PI * std::abs(x) / 180), 2)), -1));
+    }
+}
+
+double Bit2Register::calcLAT(bool cprFlag, int LAT, double latref) {
+    const int Nz = 15; // Nombre de latitudes géographiques considérées entre l'équateur et un pôle
+    const double Dlati = 360.0 / (4 * Nz - cprFlag);
+    const int Nb = 17; // Nombre de bits constituant le registre de latitude
+
+    // Calcul de l'indice j
+    double j = std::floor(latref / Dlati) +
+               std::floor(0.5 + std::fmod(latref, Dlati) / Dlati - static_cast<double>(LAT) / (1 << Nb));
+
+    // Calcul de la latitude
+    double lat = Dlati * (j + static_cast<double>(LAT) / (1 << Nb));
+
+    return lat;
+}
+
+double Bit2Register::calcLON(bool cprFlag, int LON, double lonref, double lat) {
+    const int Nb = 17; // Nombre de bits utilisés pour représenter la longitude
+    const int Nz = 15; // Nombre de latitudes géographiques considérées entre l'équateur et un pôle
+
+    // Calcul de Dloni
+    double Dloni;
+    if (NL(lat, Nz) - cprFlag > 0) {
+        Dloni = 360.0 / (NL(lat, Nz) - cprFlag);
+    } else {
+        Dloni = 360.0; // degrés
+    }
+
+    // Calcul de l'indice m
+    double m = std::floor(lonref / Dloni) +
+               std::floor(0.5 + std::fmod(lonref, Dloni) / Dloni - static_cast<double>(LON) / (1 << Nb));
+
+    // Calcul de la longitude
+    double lon = Dloni * (m + static_cast<double>(LON) / (1 << Nb));
+
+    return lon;
+}
+
+std::vector<bool> Bit2Register::getRange(std::vector<bool>& vect, int start, int end) {
+    return std::vector<bool>(vect.begin() + start, vect.begin() + end);
+}
