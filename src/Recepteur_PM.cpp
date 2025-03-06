@@ -25,7 +25,7 @@ RecepteurPM::RecepteurPM(const int n_elmts, double Fe, double Ts)
 
     auto& p = this->create_task("process");                                                  // Create the task
     size_t ps_input = this->template create_socket_in<double>(p, "input", this->n_elmts);    // Create the input socket
-    size_t ps_output = this->template create_socket_out<double>(p, "output", ((2*Fse + this->n_elmts) - 1) / Fse); // Create the output socket
+    size_t ps_output = this->template create_socket_out<double>(p, "output", std::floor((len_p + this->n_elmts - 1) /Fse));   // Create the output socket
 
     // create the codelet
     this->create_codelet(
@@ -48,9 +48,16 @@ RecepteurPM::RecepteurPM(const int n_elmts, double Fe, double Ts)
 void RecepteurPM::process(const double* yl, double* output) {
     std::vector<double> rl = convolution(yl, porte[0]);
     std::vector<double> rk;
-    for (size_t i = len_p; i < rl.size(); i += len_p / 2) {
+
+    std::cout<<"taille de rl "<< rl.size() << std::endl;
+
+    for (size_t i = len_p; i < rl.size(); i += std::floor(Fse/2)) {
         rk.push_back(rl[i]);
     }
+
+    std::cout<<"taille de rk "<< rk.size() << std::endl;
+
+    std::cout<<"taille de output "<<std::floor((len_p + this->n_elmts - 1)/Fse)<< std::endl;
 
     double v0 = std::accumulate(porte[1], porte[1]+len_p, 0.0,
                                 [](double acc, double val) { return acc + val * val; });

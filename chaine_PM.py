@@ -26,6 +26,8 @@ def chaine_PM():
     sig = canal.process(yl)
     print(f" sig : {sig}")
 
+    print(f"len sig : {len(sig)}")
+
     receiver=ads_b.RecepteurPM(len(sig),Fe,Ts)
 
     sortie = receiver.process(sig)

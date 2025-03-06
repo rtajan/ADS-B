@@ -18,8 +18,6 @@ public:
     double longitude;
 };
 
-using Register = struct Register;
-
 class Bit2Register : public spu::module::Stateful{
 protected:
     int n_elmts;
@@ -30,13 +28,13 @@ public:
     void process(double * input, Register * output);
 
 private:
-    int bin2dec(const std::vector<bool>& bits);
-    std::string bin2hex(const std::vector<bool>& bits);
-    char bin2carid(const std::vector<bool>& bits);
+    int bin2dec(const std::vector<double>& bits);
+    std::string bin2hex(const std::vector<double>& bits);
+    char bin2carid(const std::vector<double>& bits);
     double NL(double x, int Nz);
     double calcLAT(bool cprFlag, int LAT, double ref_latitude);
     double calcLON(bool cprFlag, int LON, double ref_longitude, double latitude);
-    std::vector<bool> getRange(std::vector<bool>& vect, int start, int end);
+    std::vector<double> getRange(std::vector<double>& vect, int start, int end);
 };
 
 #endif // BIT2REGISTER_HPP

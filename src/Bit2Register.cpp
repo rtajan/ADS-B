@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iterator> // Pour std::next
 
+
 Bit2Register::Bit2Register(const int n_elmts)
     : Stateful()
     ,n_elmts(n_elmts) {
@@ -24,7 +25,7 @@ Bit2Register::Bit2Register(const int n_elmts)
               // Recover the Module and Sockets in the codelet
               auto& bit2register = static_cast<Bit2Register&>(m);
               double* input = (double*)(t[ps_input].get_dataptr());
-              Register * output = (Register *)(t[ps_output].get_dataptr());
+              Register * output = t[ps_output].get_dataptr<Register>();
 
               // Process the data
               bit2register.process(input, output);
@@ -34,20 +35,22 @@ Bit2Register::Bit2Register(const int n_elmts)
 }
 
 void Bit2Register::process(double * input, Register * registre) {
-    // Créez un std::vector<double> à partir du tableau input
-    std::vector<double> vectl(input, input + n_elmts);
 
-    // Convertissez std::vector<double> en std::vector<bool>
-    std::vector<bool> vectbin(vectl.size());
-    for (size_t i = 0; i < vectl.size(); ++i) {
-        vectbin[i] = static_cast<bool>(vectl[i]);
-    }
+    std::vector<double> vectbin(input, input + n_elmts);
 
     auto formatBits = getRange(vectbin, 0, 5);
     auto adresseBits = getRange(vectbin, 8, 32);
     auto typeBits = getRange(vectbin, 32, 37);
     registre->format = bin2dec(formatBits);
+
+    std::cout<<"registre adresse "<<&(registre->adresse)<<std::endl;
+    if (&(registre->adresse) == nullptr) {
+        std::cout<<" pointeur adresse null "<<&(registre->adresse)<<std::endl;
+    }
+
     registre->adresse = bin2hex(adresseBits);
+    std::cout<<"adresse"<<std::endl;
+
     registre->type = bin2dec(typeBits);
 
     if ((registre->type >= 9 && registre->type <= 18) || (registre->type >= 20 && registre->type <= 22)) {
@@ -75,26 +78,32 @@ void Bit2Register::process(double * input, Register * registre) {
 }
 
 
-int Bit2Register::bin2dec(const std::vector<bool>& bits) {
+
+int Bit2Register::bin2dec(const std::vector<double>& bits) {
     int value = 0;
-    for (bool bit : bits) {
-        value = (value << 1) | bit;
+    for (double bit : bits) {
+        value = (value << 1) | static_cast<int>(bit);
     }
     return value;
 }
 
-std::string Bit2Register::bin2hex(const std::vector<bool>& bits) {
+std::string Bit2Register::bin2hex(const std::vector<double>& bits) {
+
+    std::cout<<"dans la fct"<<std::endl;
     int value = bin2dec(bits);
+    std::cout<<"après bin2dec"<<value<<std::endl;
     std::stringstream ss;
+    std::cout<<"après stringstream"<<std::endl;
     ss << std::hex << std::setw(6) << std::setfill('0') << value;
+    std::cout<<"après fleche "<< ss.str() <<std::endl;
     return ss.str();
 }
 
-char Bit2Register::bin2carid(const std::vector<bool>& bits) {
+char Bit2Register::bin2carid(const std::vector<double>& bits) {
     return static_cast<char>(bin2dec(bits));
 }
 
-double NL(double x, int Nz) {
+double Bit2Register::NL(double x, int Nz) {
     if (x == 0) {
         return 59;
     } else if (x == 87) {
@@ -145,6 +154,6 @@ double Bit2Register::calcLON(bool cprFlag, int LON, double lonref, double lat) {
     return lon;
 }
 
-std::vector<bool> Bit2Register::getRange(std::vector<bool>& vect, int start, int end) {
-    return std::vector<bool>(vect.begin() + start, vect.begin() + end);
+std::vector<double> Bit2Register::getRange(std::vector<double>& vect, int start, int end) {
+    return std::vector<double>(vect.begin() + start, vect.begin() + end);
 }

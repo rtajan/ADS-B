@@ -11,7 +11,7 @@ DetectCRC::DetectCRC(const int n_elmts)
 
     auto& p = this->create_task("process");                                                  // Create the task
     size_t ps_input = this->template create_socket_in<double>(p, "input", this->n_elmts);    // Create the input socket
-    size_t ps_output = this->template create_socket_out<bool>(p, "output", 1); // Create the output socket
+    size_t ps_output = this->template create_socket_out<int>(p, "output", 1); // Create the output socket
 
     // create the codelet
     this->create_codelet(
@@ -21,7 +21,7 @@ DetectCRC::DetectCRC(const int n_elmts)
           // Recover the Module and Sockets in the codelet
           auto& detectCRC = static_cast<DetectCRC&>(m);
           double* input = (double*)(t[ps_input].get_dataptr());
-          double* output = (double*)(t[ps_output].get_dataptr());
+          int* output = (int*)(t[ps_output].get_dataptr());
 
           // Process the data
           detectCRC.process(input, output);
@@ -30,12 +30,13 @@ DetectCRC::DetectCRC(const int n_elmts)
 
 }
 
-bool DetectCRC::process(double* tram, bool output) {
-    std::vector<bool> tram_sans_crc = tram;
-
+void DetectCRC::process(double* tram, int* output) {
+    std::vector<bool> tram_sans_crc(n_elmts);
+    for (size_t i = 0; i < n_elmts; ++i) {
+        tram_sans_crc[i] = static_cast<bool>(tram[i]);
+    }
 
     tram_sans_crc.insert(tram_sans_crc.end(), 24, 0);
-
 
     for (size_t i = 0; i < tram_sans_crc.size() - 24; ++i) {
         if (tram_sans_crc[i]) {
@@ -45,13 +46,12 @@ bool DetectCRC::process(double* tram, bool output) {
         }
     }
 
-
     for (size_t i = tram_sans_crc.size() - 24; i < tram_sans_crc.size(); ++i) {
         if (tram_sans_crc[i]) {
-            output = false;
+            output[0] = 0;
             //return false;
         }
     }
-    output = true;
+    output[0] = 1;
     //return true;
 }

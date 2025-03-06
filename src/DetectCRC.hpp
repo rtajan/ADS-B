@@ -9,9 +9,9 @@ protected:
     int n_elmts;
 
 public:
-DetectCRC(const int n_elmts);
+    DetectCRC(const int n_elmts);
     virtual ~DetectCRC() = default;
-    void process(double* tram, bool output);
+    void process(double* tram, int* output);
 
 private:
     std::vector<bool> Polynome_CRC;
