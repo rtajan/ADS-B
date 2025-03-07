@@ -36,26 +36,25 @@ Bit2Register::Bit2Register(const int n_elmts)
 
 void Bit2Register::process(double * input, Register * registre) {
 
+    Register * out = new(registre) Register; //delete à faire
+
     std::vector<double> vectbin(input, input + n_elmts);
 
     auto formatBits = getRange(vectbin, 0, 5);
     auto adresseBits = getRange(vectbin, 8, 32);
     auto typeBits = getRange(vectbin, 32, 37);
-    registre->format = bin2dec(formatBits);
 
-    std::cout<<"registre adresse "<<&(registre->adresse)<<std::endl;
-    if (&(registre->adresse) == nullptr) {
-        std::cout<<" pointeur adresse null "<<&(registre->adresse)<<std::endl;
-    }
-
-    registre->adresse = bin2hex(adresseBits);
-    std::cout<<"adresse"<<std::endl;
-
-    registre->type = bin2dec(typeBits);
+    out->format = bin2dec(formatBits);
+    bin2hex(adresseBits,out->adresse);
+    out->type = bin2dec(typeBits);
 
     if ((registre->type >= 9 && registre->type <= 18) || (registre->type >= 20 && registre->type <= 22)) {
         auto altitudeBits = getRange(vectbin, 40, 47);
-        altitudeBits.insert(altitudeBits.end(), getRange(vectbin, 48, 52).begin(), getRange(vectbin, 48, 52).end());
+
+        //afficher les paramètres d'insert
+
+
+        altitudeBits.insert(altitudeBits.end(), getRange(vectbin, 48, 52).begin(), getRange(vectbin, 48, 52).end()); //ligne a veirfier, paramètre d'insert
         registre->altitude = bin2dec(altitudeBits) * 25 - 1000;
         registre->timeFlag = vectbin[52];
         registre->cprFlag = vectbin[53];
@@ -87,7 +86,7 @@ int Bit2Register::bin2dec(const std::vector<double>& bits) {
     return value;
 }
 
-std::string Bit2Register::bin2hex(const std::vector<double>& bits) {
+void Bit2Register::bin2hex(const std::vector<double>& bits, std::string& out) {
 
     std::cout<<"dans la fct"<<std::endl;
     int value = bin2dec(bits);
@@ -96,7 +95,13 @@ std::string Bit2Register::bin2hex(const std::vector<double>& bits) {
     std::cout<<"après stringstream"<<std::endl;
     ss << std::hex << std::setw(6) << std::setfill('0') << value;
     std::cout<<"après fleche "<< ss.str() <<std::endl;
-    return ss.str();
+
+    auto longu = ss.str().length();
+
+    out.reserve(longu);
+    out = ss.str();
+
+    //return new std::string(ss.str());
 }
 
 char Bit2Register::bin2carid(const std::vector<double>& bits) {
