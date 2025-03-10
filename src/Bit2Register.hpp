@@ -29,11 +29,20 @@ protected:
 public:
     Bit2Register(const int n_elmts);
     virtual ~Bit2Register() = default;
-    void process(double * input, Register * output);
+    void process(double * input,
+        char adresse[1024],
+        int* format,
+        int* type,
+        char nom[1024],
+        int* altitude,
+        int* timeFlag,
+        int* cprFlag,
+        double* latitude,
+        double* longitude);
 
 private:
     int bin2dec(const std::vector<double>& bits);
-    void bin2hex(const std::vector<double>& bits, std::string& out);
+    void bin2hex(const std::vector<double>& bits, char* out);
     char bin2carid(const std::vector<double>& bits);
     double NL(double x, int Nz);
     double calcLAT(bool cprFlag, int LAT, double ref_latitude);

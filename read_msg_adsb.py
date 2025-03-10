@@ -1,3 +1,4 @@
+import string
 import sys
 
 sys.path.insert(0, "build/")
@@ -33,48 +34,41 @@ convert = ads_b.Bit2Register(msg_nb_ligne)
 
 for i in range(msg_nb_colonne):
 
-    print(data[:,i])
+    #print(data[:,i])
     list = np.array(data[:,i], dtype=np.float64)
-    print(list)
+    #print(list)
     input = spu.array(list, dtype=spu.float64)
 
-    print("la")
+    tuple_var = convert.process(input)
+    tuple_arr=np.array(tuple_var[0])
+    adresse=""
 
-    #temp=ads_b.Register()
+    for i in range(len(tuple_arr[0])):
+        value=chr(tuple_arr[0][i])
+        adresse+=value
 
-    temp = convert.process(input)
-
-    print("ici")
-    print(temp.dtype)
-
-    toto = temp.numpy
-    tutu = toto[0].astype(ads_b.Register)
-    tutu = ads_b.Register.recast(toto)
+    print("voici l'adresse ",adresse)
 
 
-    print(toto," type :" , toto.dtype)
-    print(tutu," type :" , tutu.format)
+    #if (9 <= temp['type'] <= 18) or (20 <= temp.type <= 22):
+    #    coord[0, i] = temp['latitude']
+    #    coord[1, i] = temp['longitude']
+#
+    #print("ou la")
+#
+    #if 1 <= temp['type'] <= 4:
+    #    nom = temp['nom']
+    #    connaisNom = True
+#
+    #print("ou ici")
+#
+    #if connaisNom:
+    #    temp['nom'] = nom
+#
+    #print(temp)
 
-
-    if (9 <= temp['type'] <= 18) or (20 <= temp.type <= 22):
-        coord[0, i] = temp['latitude']
-        coord[1, i] = temp['longitude']
-
-    print("ou la")
-
-    if 1 <= temp['type'] <= 4:
-        nom = temp['nom']
-        connaisNom = True
-
-    print("ou ici")
-
-    if connaisNom:
-        temp['nom'] = nom
-
-    print(temp)
-
-sanszerolong = coord[1, :] != 0
-sanszerolat = coord[0, :] != 0
+#sanszerolong = coord[1, :] != 0
+#sanszerolat = coord[0, :] != 0
 
 #plt.figure()
 #plt.imshow(plt.imread('General/fond.png'), extent=[REF_LON-1, REF_LON+1, REF_LAT-1, REF_LAT+1])

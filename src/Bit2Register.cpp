@@ -15,28 +15,63 @@ Bit2Register::Bit2Register(const int n_elmts)
 
         auto& p = this->create_task("process");                                                  // Create the task
         size_t ps_input = this->template create_socket_in<double>(p, "input", this->n_elmts);    // Create the input socket
-        size_t ps_output = this->template create_socket_out<int8_t>(p, "output", sizeof(Register)); // Create the output socket
+
+        size_t ps_adresse = this->template create_socket_out<int8_t>(p, "adresse", 32*sizeof(int8_t)); // Create the output socket
+        size_t ps_format = this->template create_socket_out<int>(p, "format", 1);
+        size_t ps_type = this->template create_socket_out<int>(p, "type", 1);
+        size_t ps_nom = this->template create_socket_out<int8_t>(p, "nom", 32*sizeof(int8_t));
+        size_t ps_altitude = this->template create_socket_out<int>(p, "altitude", 1);
+        size_t ps_timeFlag = this->template create_socket_out<int>(p, "timeFlag", 1);
+        size_t ps_cprFlag = this->template create_socket_out<int>(p, "cprFlag", 1);
+        size_t ps_latitude = this->template create_socket_out<double>(p, "latitude", 1);
+        size_t ps_longitude = this->template create_socket_out<double>(p, "longitude", 1);
 
         // create the codelet
         this->create_codelet(
           p,
-          [ps_input, ps_output](spu::module::Module& m, spu::runtime::Task& t, const size_t frame_id) -> int
+          [ps_input,
+            ps_adresse,
+            ps_format,
+            ps_type,
+            ps_nom,
+            ps_altitude,
+            ps_timeFlag,
+            ps_cprFlag,
+            ps_latitude,
+            ps_longitude
+            ](spu::module::Module& m, spu::runtime::Task& t, const size_t frame_id) -> int
           {
               // Recover the Module and Sockets in the codelet
               auto& bit2register = static_cast<Bit2Register&>(m);
               double* input = (double*)(t[ps_input].get_dataptr()); //un void* par défaut d'où le cast
-              Register * output = t[ps_output].get_dataptr<Register>();
+
+              char* adresse = (char*)(t[ps_adresse].get_dataptr());
+              int* format = (int*)(t[ps_format].get_dataptr());
+              int* type = (int*)(t[ps_type].get_dataptr());
+              char* nom = (char*)(t[ps_nom].get_dataptr());
+              int* altitude = (int*)(t[ps_altitude].get_dataptr());
+              int* timeFlag = (int*)(t[ps_timeFlag].get_dataptr());
+              int* cprFlag = (int*)(t[ps_cprFlag].get_dataptr());
+              double* latitude = (double*)(t[ps_latitude].get_dataptr());
+              double* longitude = (double*)(t[ps_longitude].get_dataptr());
 
               // Process the data
-              bit2register.process(input, output);
+              bit2register.process(input, adresse, format, type, nom, altitude, timeFlag, cprFlag, latitude, longitude);
               return spu::runtime::status_t::SUCCESS;
           });
 
 }
 
-void Bit2Register::process(double * input, Register * registre) {
-
-    Register * out = new(registre) Register; //delete à faire plus tard
+void Bit2Register::process(double * input,
+    char adresse[1024],
+    int* format,
+    int* type,
+    char nom[1024],
+    int* altitude,
+    int* timeFlag,
+    int* cprFlag,
+    double* latitude,
+    double* longitude) {
 
     std::vector<double> vectbin(input, input + n_elmts);
 
@@ -44,11 +79,11 @@ void Bit2Register::process(double * input, Register * registre) {
     auto adresseBits = getRange(vectbin, 8, 32);
     auto typeBits = getRange(vectbin, 32, 37);
 
-    out->format = bin2dec(formatBits);
-    bin2hex(adresseBits,out->adresse);
-    out->type = bin2dec(typeBits);
+    *format = bin2dec(formatBits);
+    bin2hex(adresseBits, adresse);
+    *type = bin2dec(typeBits);
 
-    if ((registre->type >= 9 && registre->type <= 18) || (registre->type >= 20 && registre->type <= 22)) {
+    if ((*type >= 9 && *type <= 18) || (*type >= 20 && *type <= 22)) {
         auto altitudeBits = getRange(vectbin, 40, 47);
 
         //afficher les paramètres dinsert
@@ -60,21 +95,21 @@ void Bit2Register::process(double * input, Register * registre) {
         altitudeBits.insert(altitudeBits.end(), tempVect.begin(), tempVect.end());
         std::cout<<"altitueBit "<<altitudeBits[10]<<std::endl;
 
-        registre->altitude = bin2dec(altitudeBits) * 25 - 1000;
-        registre->timeFlag = vectbin[52];
-        registre->cprFlag = vectbin[53];
+        *altitude = bin2dec(altitudeBits) * 25 - 1000;
+        *timeFlag = vectbin[52];
+        *cprFlag = vectbin[53];
         int LAT = bin2dec(getRange(vectbin, 54, 71));
         int LON = bin2dec(getRange(vectbin, 71, 88));
-        registre->latitude = calcLAT(registre->cprFlag, LAT, 44.806884);
-        registre->longitude = calcLON(registre->cprFlag, LON, -0.606629, registre->latitude);
+        *latitude = calcLAT(*cprFlag, LAT, 44.806884);
+        *longitude = calcLON(*cprFlag, LON, -0.606629, *latitude);
     }
-    if (registre->type >= 1 && registre->type <= 4) {
-        std::string nom = "";
+    if (*type >= 1 && *type <= 4) {
+        //std::string nom = "";
         for (int i = 0; i < 8; ++i) {
             auto charBits = getRange(vectbin, 40 + i * 6, 46 + i * 6);
-            nom += bin2carid(charBits);
+            nom[i] = bin2carid(charBits);
         }
-        registre->nom = nom;
+        //nom = nom;
         std::cout << nom << std::endl;
     }
 
@@ -91,7 +126,7 @@ int Bit2Register::bin2dec(const std::vector<double>& bits) {
     return value;
 }
 
-void Bit2Register::bin2hex(const std::vector<double>& bits, std::string& out) {
+void Bit2Register::bin2hex(const std::vector<double>& bits, char* out) {
 
     std::cout<<"dans la fct"<<std::endl;
     int value = bin2dec(bits);
@@ -102,9 +137,12 @@ void Bit2Register::bin2hex(const std::vector<double>& bits, std::string& out) {
     std::cout<<"après fleche "<< ss.str() <<std::endl;
 
     auto longu = ss.str().length();
+    std::string inter = ss.str();
 
-    out.reserve(longu);
-    out = ss.str();
+    for (int i=0; i<longu; i++){
+        out[i] = inter[i];
+    }
+
 
     //return new std::string(ss.str());
 }
