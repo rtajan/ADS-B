@@ -26,18 +26,6 @@ print(msg_nb_colonne, msg_nb_ligne)
 
 ## Initialisation des coordonnées et de la structure temporaire
 coord = np.zeros((2, msg_nb_colonne))
-#temp = {
-#    'adresse': '',
-#    'format': 0,
-#    'type': 0,
-#    'nom': '',
-#    'altitude': 0,
-#    'timeFlag': False,
-#    'cprFlag': False,
-#    'latitude': 0.0,
-#    'longitude': 0.0
-#}
-#
 nom = ''
 connaisNom = False
 
@@ -52,11 +40,23 @@ for i in range(msg_nb_colonne):
 
     print("la")
 
+    #temp=ads_b.Register()
+
     temp = convert.process(input)
 
     print("ici")
+    print(temp.dtype)
 
-    if (9 <= temp['type'] <= 18) or (20 <= temp['type'] <= 22):
+    toto = temp.numpy
+    tutu = toto[0].astype(ads_b.Register)
+    tutu = ads_b.Register.recast(toto)
+
+
+    print(toto," type :" , toto.dtype)
+    print(tutu," type :" , tutu.format)
+
+
+    if (9 <= temp['type'] <= 18) or (20 <= temp.type <= 22):
         coord[0, i] = temp['latitude']
         coord[1, i] = temp['longitude']
 

@@ -5,6 +5,8 @@
 #include "Bit2Register.hpp"
 #include <pybind11/pybind11.h>
 #include <streampu.hpp>
+#include <pybind11/numpy.h>
+
 
 namespace py = pybind11;
 using namespace py::literals;
@@ -28,6 +30,10 @@ PYBIND11_MODULE(ads_b, m)
 
     py::class_<Register>(m, "Register")
         .def(py::init<>())
+        .def_static("recast",[](py::array& arr){
+            py::buffer_info buffer = arr.request();
+            return static_cast<Register*>(buffer.ptr);
+        })
         .def_readwrite("adresse", &Register::adresse)
         .def_readwrite("format", &Register::format)
         .def_readwrite("type", &Register::type)

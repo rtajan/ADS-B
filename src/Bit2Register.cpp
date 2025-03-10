@@ -24,7 +24,7 @@ Bit2Register::Bit2Register(const int n_elmts)
           {
               // Recover the Module and Sockets in the codelet
               auto& bit2register = static_cast<Bit2Register&>(m);
-              double* input = (double*)(t[ps_input].get_dataptr());
+              double* input = (double*)(t[ps_input].get_dataptr()); //un void* par défaut d'où le cast
               Register * output = t[ps_output].get_dataptr<Register>();
 
               // Process the data
@@ -36,7 +36,7 @@ Bit2Register::Bit2Register(const int n_elmts)
 
 void Bit2Register::process(double * input, Register * registre) {
 
-    Register * out = new(registre) Register; //delete à faire
+    Register * out = new(registre) Register; //delete à faire plus tard
 
     std::vector<double> vectbin(input, input + n_elmts);
 
@@ -51,10 +51,15 @@ void Bit2Register::process(double * input, Register * registre) {
     if ((registre->type >= 9 && registre->type <= 18) || (registre->type >= 20 && registre->type <= 22)) {
         auto altitudeBits = getRange(vectbin, 40, 47);
 
-        //afficher les paramètres d'insert
+        //afficher les paramètres dinsert
+        std::cout<<"altitueBit "<<altitudeBits[6]<<std::endl;
+        std::cout<<"altitueBit.end "<<altitudeBits.end()[0]<<std::endl;
 
+        auto tempVect = getRange(vectbin, 48, 52);
 
-        altitudeBits.insert(altitudeBits.end(), getRange(vectbin, 48, 52).begin(), getRange(vectbin, 48, 52).end()); //ligne a veirfier, paramètre d'insert
+        altitudeBits.insert(altitudeBits.end(), tempVect.begin(), tempVect.end());
+        std::cout<<"altitueBit "<<altitudeBits[10]<<std::endl;
+
         registre->altitude = bin2dec(altitudeBits) * 25 - 1000;
         registre->timeFlag = vectbin[52];
         registre->cprFlag = vectbin[53];

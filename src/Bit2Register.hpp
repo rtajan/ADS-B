@@ -12,13 +12,13 @@ public:
     int type;
     std::string nom;
     int altitude;
-    bool timeFlag;
-    bool cprFlag;
+    int timeFlag;
+    int cprFlag;
     double latitude;
     double longitude;
 
     Register() : adresse("000000"), nom("Unknow"), type(0) {
-        std::cerr << "adresse.capacity()=" <<adresse.capacity()<<std::endl;
+        //std::cerr << "adresse.capacity()=" <<adresse.capacity()<<std::endl;
     }
 };
 
