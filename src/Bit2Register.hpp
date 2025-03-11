@@ -45,8 +45,8 @@ private:
     void bin2hex(const std::vector<double>& bits, char* out);
     char bin2carid(const std::vector<double>& bits);
     double NL(double x, int Nz);
-    double calcLAT(bool cprFlag, int LAT, double ref_latitude);
-    double calcLON(bool cprFlag, int LON, double ref_longitude, double latitude);
+    double calcLAT(int cprFlag, int LAT, double ref_latitude);
+    double calcLON(int cprFlag, int LON, double ref_longitude, double latitude);
     std::vector<double> getRange(std::vector<double>& vect, int start, int end);
 };
 

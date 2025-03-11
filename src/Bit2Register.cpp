@@ -85,16 +85,8 @@ void Bit2Register::process(double * input,
 
     if ((*type >= 9 && *type <= 18) || (*type >= 20 && *type <= 22)) {
         auto altitudeBits = getRange(vectbin, 40, 47);
-
-        //afficher les paramètres dinsert
-        std::cout<<"altitueBit "<<altitudeBits[6]<<std::endl;
-        std::cout<<"altitueBit.end "<<altitudeBits.end()[0]<<std::endl;
-
         auto tempVect = getRange(vectbin, 48, 52);
-
         altitudeBits.insert(altitudeBits.end(), tempVect.begin(), tempVect.end());
-        std::cout<<"altitueBit "<<altitudeBits[10]<<std::endl;
-
         *altitude = bin2dec(altitudeBits) * 25 - 1000;
         *timeFlag = vectbin[52];
         *cprFlag = vectbin[53];
@@ -127,15 +119,9 @@ int Bit2Register::bin2dec(const std::vector<double>& bits) {
 }
 
 void Bit2Register::bin2hex(const std::vector<double>& bits, char* out) {
-
-    std::cout<<"dans la fct"<<std::endl;
     int value = bin2dec(bits);
-    std::cout<<"après bin2dec"<<value<<std::endl;
     std::stringstream ss;
-    std::cout<<"après stringstream"<<std::endl;
     ss << std::hex << std::setw(6) << std::setfill('0') << value;
-    std::cout<<"après fleche "<< ss.str() <<std::endl;
-
     auto longu = ss.str().length();
     std::string inter = ss.str();
 
@@ -148,7 +134,35 @@ void Bit2Register::bin2hex(const std::vector<double>& bits, char* out) {
 }
 
 char Bit2Register::bin2carid(const std::vector<double>& bits) {
-    return static_cast<char>(bin2dec(bits));
+
+    if (bits.size() == 6) {
+        const std::string majA_O = "ABCDEFGHIJKLMNO";
+        const std::string majP_Z = "PQRSTUVWXYZ     ";
+
+        std::vector<double> flipped_vect = bits;
+        std::reverse(flipped_vect.begin(), flipped_vect.end());
+        std::vector<double> extract = getRange(flipped_vect,0,4);
+        std::reverse(extract.begin(), extract.end());
+
+        int value = bin2dec(extract);
+        std::cout<< "valeur : "<<value<<std::endl;
+
+        if (flipped_vect[5] == 0) {
+            if (flipped_vect[4] == 0) {
+                return majA_O[value-1];
+            } else {
+                return majP_Z[value];
+            }
+        } else {
+            if (flipped_vect[4] == 1) {
+                return std::to_string(value)[0];
+            } else {
+                return ' ';
+            }
+        }
+    } else {
+        throw std::invalid_argument("La suite de bits n'est pas de taille 6");
+    }
 }
 
 double Bit2Register::NL(double x, int Nz) {
@@ -159,16 +173,18 @@ double Bit2Register::NL(double x, int Nz) {
     } else if (std::abs(x) > 87) {
         return 1;
     } else {
-        return std::floor(2 * M_PI *
-                          std::pow(std::acos(1 - (1 - std::cos(M_PI / (2 * Nz))) /
-                                             std::pow(std::cos(M_PI * std::abs(x) / 180), 2)), -1));
+        //return std::floor(2 * M_PI *
+        //                  std::pow(std::acos(1 - (1 - std::cos(M_PI / (2 * Nz))) /
+        //                                     std::pow(std::cos(M_PI * std::abs(x) / 180), 2)), -1));
+        return std::floor(2*M_PI / (std::acos(1- ( (1-std::cos(M_PI/(2*Nz))) / (std::pow(std::cos(M_PI*x/180),2)) ))));
     }
 }
 
-double Bit2Register::calcLAT(bool cprFlag, int LAT, double latref) {
+double Bit2Register::calcLAT(int cprFlag, int LAT, double latref) {
     const int Nz = 15; // Nombre de latitudes géographiques considérées entre l'équateur et un pôle
     const double Dlati = 360.0 / (4 * Nz - cprFlag);
     const int Nb = 17; // Nombre de bits constituant le registre de latitude
+
 
     // Calcul de l'indice j
     double j = std::floor(latref / Dlati) +
@@ -180,14 +196,16 @@ double Bit2Register::calcLAT(bool cprFlag, int LAT, double latref) {
     return lat;
 }
 
-double Bit2Register::calcLON(bool cprFlag, int LON, double lonref, double lat) {
+double Bit2Register::calcLON(int cprFlag, int LON, double lonref, double lat) {
     const int Nb = 17; // Nombre de bits utilisés pour représenter la longitude
     const int Nz = 15; // Nombre de latitudes géographiques considérées entre l'équateur et un pôle
+
+    std::cout<<"cprFlag : "<<cprFlag<<std::endl;
 
     // Calcul de Dloni
     double Dloni;
     if (NL(lat, Nz) - cprFlag > 0) {
-        Dloni = 360.0 / (NL(lat, Nz) - cprFlag);
+        Dloni = 360.0 / (NL(lat, Nz)); //NL(lat,Nz) - cprFlag
     } else {
         Dloni = 360.0; // degrés
     }
