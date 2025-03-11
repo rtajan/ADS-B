@@ -200,8 +200,6 @@ double Bit2Register::calcLON(int cprFlag, int LON, double lonref, double lat) {
     const int Nb = 17; // Nombre de bits utilisés pour représenter la longitude
     const int Nz = 15; // Nombre de latitudes géographiques considérées entre l'équateur et un pôle
 
-    std::cout<<"cprFlag : "<<cprFlag<<std::endl;
-
     // Calcul de Dloni
     double Dloni;
     if (NL(lat, Nz) - cprFlag > 0) {

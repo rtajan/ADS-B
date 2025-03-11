@@ -1,3 +1,4 @@
+from pprint import isreadable
 import sys
 sys.path.insert(0, "build/")
 
@@ -54,6 +55,7 @@ nom = ''
 connaisNom = False
 
 convert = ads_b.Bit2Register(msg_nb_ligne)
+detect = ads_b.DetectCRC(msg_nb_ligne)
 
 for i in range(msg_nb_colonne):
 
@@ -62,30 +64,34 @@ for i in range(msg_nb_colonne):
     #print(list)
     input = spu.array(list, dtype=spu.float64)
 
-    adresse_sock,format_list,type_sock,nom_sock,altitude_sock,timeFlag_sock,cprFlag_sock,latitude_sock,longitude_sock = convert.process(input)
+    isClear = detect.process(input)
 
-    adresse_arr=np.array(adresse_sock)
-    adresse=""
-    for j in range(len(adresse_arr[0])):
-        value=chr(adresse_arr[0][j])
-        adresse+=value
-    print("voici l'adresse ",adresse)
+    if (isClear[0][0]):
+        adresse_sock,format_list,type_sock,nom_sock,altitude_sock,timeFlag_sock,cprFlag_sock,latitude_sock,longitude_sock = convert.process(input)
 
-    nom_arr=np.array(nom_sock)
-    type_arr=np.array(type_sock)
-    latitude_arr=np.array(latitude_sock)
-    longitude_arr=np.array(longitude_sock)
+        adresse_arr=np.array(adresse_sock)
+        adresse=""
+        for j in range(len(adresse_arr[0])):
+            value=chr(adresse_arr[0][j])
+            adresse+=value
+        print("voici l'adresse ",adresse)
 
-    if (9 <= type_arr[0] <= 18) or (20 <= type_arr[0] <= 22):
-        coord[0, i] = latitude_arr[0][0]
-        coord[1, i] = longitude_arr[0][0]
+        nom_arr=np.array(nom_sock)
+        type_arr=np.array(type_sock)
+        latitude_arr=np.array(latitude_sock)
+        longitude_arr=np.array(longitude_sock)
 
-    if (1 <= type_arr[0] <= 4) and (connaisNom==False):
-        for l in range(len(nom_arr[0])):
-            value=chr(nom_arr[0][l])
-            nom+=value
-        print("nom",nom)
-        connaisNom = True
+        if (9 <= type_arr[0] <= 18) or (20 <= type_arr[0] <= 22):
+            coord[0, i] = latitude_arr[0][0]
+            coord[1, i] = longitude_arr[0][0]
+
+        if (1 <= type_arr[0] <= 4) and (connaisNom==False):
+            for l in range(len(nom_arr[0])):
+                value=chr(nom_arr[0][l])
+                nom+=value
+            print("nom",nom)
+            connaisNom = True
+        print("===================================")
 
 
 sanszerolat = coord[0, :] != 0
@@ -103,3 +109,7 @@ plt.plot(coord[1, sanszerolat]+8,coord[0, sanszerolong], '--o', markerfacecolor=
 #plt.title('Carte des positions ADS-B')
 plt.savefig('carte_positions.png')
 #plt.show()
+
+seq = spu.Sequence(input.task)
+seq.export_dot("test.dot")
+
