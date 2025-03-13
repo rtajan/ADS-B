@@ -105,6 +105,7 @@ void Bit2Register::process(double * input,
         std::cout << nom << std::endl;
     }
 
+    std::cout<<"indicateur fin de process"<<std::endl;
     //return registre;
 }
 

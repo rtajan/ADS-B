@@ -8,30 +8,10 @@ import streampu as spu
 
 import scipy.io
 
-def extract_adresse(_,t,__):
-    adresse_sock=t.sock_in.numpy
-    adresse_arr=np.array(adresse_sock)
-    adresse=""
-    for j in range(len(adresse_arr[0])):
-        value=chr(adresse_arr[0][j])
-        adresse+=value
-    print("voici l'adresse ",adresse)
-    return adresse
-
-class ConvertAdresse(spu.Stateful):
-
-    def __init__(self):
-        super().__init__()
-        self.create_task("conv")
-        self.create_socket_in(self["conv"], "sock_in", 32, spu.int8)
-        self.create_codelet(self["conv"], extract_adresse)
-
-    def execut(self,adresse_sock):
-        return self["conv"](adresse_sock)
-
-
-
-
+def transmit(_,t,__):
+    element=t.sock_in.numpy
+    #t.sock_out.numpy=element
+    return element
 
 mat_contents = scipy.io.loadmat('adsb_msgs.mat')
 data = mat_contents['adsb_msgs']
@@ -48,26 +28,58 @@ print(msg_nb_colonne, msg_nb_ligne)
 # Module :
 convert = ads_b.Bit2Register(msg_nb_ligne)
 detect = ads_b.DetectCRC(msg_nb_ligne)
-initializer = spu.initializer(msg_nb_ligne, dtype=spu.float64)
-convertAdresse = ConvertAdresse()
 
-# Input
+# Input :
 list = np.array(data[:,0], dtype=np.float64)
-initializer.set_init_data=list  # ne fonctionne pas
-input = initializer.initialize()
+input = spu.array(list, dtype=spu.float64)
 
-print(input)
+#print(input)
 
-# Process
+# Process :
 isClear = detect.process(input)
 adresse_sock,format_list,type_sock,nom_sock,altitude_sock,timeFlag_sock,cprFlag_sock,latitude_sock,longitude_sock = convert.process(input)
 
-adresse = convertAdresse.execut(adresse_sock)
-print(adresse)
+adresse_arr=np.array(adresse_sock)
+adresse=""
+for j in range(len(adresse_arr[0])):
+    value=chr(adresse_arr[0][j])
+    adresse+=value
+print("voici l'adresse ",adresse)
+
+type_arr=np.array(type_sock)
+latitude_arr=np.array(latitude_sock)
+longitude_arr=np.array(longitude_sock)
+#print(longitude_sock)
+
+rep=spu.Reporter_probe("Aircraft Info","")
+prb_lon=spu.probe_value(1,"longitude",rep,dtype=spu.float64)
+#prb_lon.probe(longitude_arr[0][0])
+#prb_lon.tasks[0].sockets[0]=longitude_sock
+
+#prb_lon.create_task("transmit")
+#print(len(prb_lon.tasks))
+#print(prb_lon.tasks[1].name)
+
+#prb_lon.create_socket_in(prb_lon["transmit"], "sock_in", 1, spu.float64)
+#prb_lon.create_socket_out(prb_lon["transmit"], "sock_out", 1, spu.float64)
+#prb_lon.create_codelet(prb_lon["transmit"], transmit)
+#prb_lon["transmit::sock_in"]=longitude_sock  #convert["process::longitude"]
+#print(prb_lon["probe::in"])
+#prb_lon["transmit"].exec()
+
+prb_lon["probe::in"]=longitude_sock
+
+ter = spu.Terminal_dump([rep])
+ter.legend()
 
 
+# Sequence :
+seq = spu.Sequence(input.task)
+seq.export_dot("sequence_read.dot")
 
-
-
-#for i in range(1,msg_nb_colonne):
-#
+for i in range(1,msg_nb_colonne):
+    list[:] = data[:,i]
+    #list = np.array(data[:,i], dtype=np.float64)
+    #print(input)
+    seq.exec_n_times(1)
+ter.legend()
