@@ -3,9 +3,14 @@
 #include "Canal.hpp"
 #include "DetectCRC.hpp"
 #include "Bit2Register.hpp"
+#include "Decimation_PM.hpp"
+#include "Filter.hpp"
+#include "AbsolueCarre.hpp"
+#include "Decision_PM.hpp"
 #include <pybind11/pybind11.h>
 #include <streampu.hpp>
 #include <pybind11/numpy.h>
+
 
 
 namespace py = pybind11;
@@ -46,4 +51,16 @@ PYBIND11_MODULE(ads_b, m)
 
     py::class_<Bit2Register, spu::module::Stateful>(m, "Bit2Register")
         .def(py::init<const int>(), "n_elmts"_a);
+
+    py::class_<DecimationPM, spu::module::Stateful>(m, "DecimationPM")
+        .def(py::init<const int>(), "n_elmts"_a);
+
+    py::class_<Filter, spu::module::Stateful>(m, "Filter")
+        .def(py::init<const int, double*, const int>(), "n_elmts"_a, "h"_a, "size_h"_a);
+
+    py::class_<AbsolueCarre, spu::module::Stateful>(m, "AbsolueCarre")
+        .def(py::init<const int>(), "n_elmts"_a);
+
+    py::class_<DecisionPM, spu::module::Stateful>(m, "DecisionPM")
+        .def(py::init<const int, double>(), "n_elmts"_a, "v0"_a);
 }

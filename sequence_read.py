@@ -67,19 +67,24 @@ prb_lon=spu.probe_value(1,"longitude",rep,dtype=spu.float64)
 #print(prb_lon["probe::in"])
 #prb_lon["transmit"].exec()
 
-prb_lon["probe::in"]=longitude_sock
+#prb_lon["probe::in"]=longitude_sock
+prb_lon(longitude_sock)
 
 ter = spu.Terminal_dump([rep])
 ter.legend()
 
+#print(dir(ter))
 
 # Sequence :
 seq = spu.Sequence(input.task)
 seq.export_dot("sequence_read.dot")
 
-for i in range(1,msg_nb_colonne):
-    list[:] = data[:,i]
-    #list = np.array(data[:,i], dtype=np.float64)
-    #print(input)
+
+
+for i in range(1, msg_nb_colonne):
+    list[:] = data[:, i]
+    # list = np.array(data[:,i], dtype=np.float64)
+    # print(input)
     seq.exec_n_times(1)
-ter.legend()
+    ter.legend()
+    ter.temp_report()
