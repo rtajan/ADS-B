@@ -7,6 +7,8 @@
 #include "Filter.hpp"
 #include "AbsolueCarre.hpp"
 #include "Decision_PM.hpp"
+#include "Somme.hpp"
+#include "Selector.hpp"
 #include <pybind11/pybind11.h>
 #include <streampu.hpp>
 #include <pybind11/numpy.h>
@@ -63,4 +65,10 @@ PYBIND11_MODULE(ads_b, m)
 
     py::class_<DecisionPM, spu::module::Stateful>(m, "DecisionPM")
         .def(py::init<const int, double>(), "n_elmts"_a, "v0"_a);
+
+    py::class_<Somme, spu::module::Stateful>(m, "Somme")
+        .def(py::init<const int>(), "n_elmts"_a);
+
+    py::class_<Selector, spu::module::Stateful>(m, "Selector")
+        .def(py::init<const int>(), "n_elmts"_a);
 }
