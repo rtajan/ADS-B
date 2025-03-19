@@ -10,7 +10,7 @@ AbsolueCarre::AbsolueCarre(const int n_elmts)
 
     auto& p = this->create_task("process");                                                  // Create the task
     size_t ps_input = this->template create_socket_in<double>(p, "input", this->n_elmts);    // Create the input socket
-    size_t ps_output = this->template create_socket_out<double>(p, "output", this->n_elmts);   // Create the output socket
+    size_t ps_output = this->template create_socket_out<double>(p, "output", this->n_elmts /2);   // Create the output socket
 
     // create the codelet
     this->create_codelet(
@@ -30,6 +30,6 @@ AbsolueCarre::AbsolueCarre(const int n_elmts)
 
 void AbsolueCarre::process(const double* input, double* output) {
     for (size_t i = 0; i < n_elmts; ++i) {
-        output[i]=input[i]*input[i];
+        output[i]=(input[i*2]*input[i*2])+(input[i*2 +1]*input[i*2 +1]);
     }
 }

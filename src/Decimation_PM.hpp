@@ -10,20 +10,16 @@ protected:
 
 public:
     //DecimationPM(int nombreVoies); On force le nomre de voie à 10
-    DecimationPM(const int n_elmts);
+    DecimationPM(const int n_elmts, int isComplex);
     virtual ~DecimationPM() = default;
     void process(const double* input,
         double* voie1,
         double* voie2,
-        double* voie3,
-        double* voie4,
-        double* voie5,
-        double* voie6,
-        double* voie7,
-        double* voie8,
-        double* voie9,
-        double* voie10
-    );
+        );
+
+    int isComplex;
+
+
 };
 
 #endif // DECIMATION_PM_HPP
