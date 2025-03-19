@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "build/")
+sys.path.insert(0, "../build/")
 
 import ads_b
 import numpy as np
@@ -13,7 +13,7 @@ def transmit(_,t,__):
     #t.sock_out.numpy=element
     return element
 
-mat_contents = scipy.io.loadmat('adsb_msgs.mat')
+mat_contents = scipy.io.loadmat('../adsb_msgs.mat')
 data = mat_contents['adsb_msgs']
 
 REF_LON = -0.606629  # Longitude de référence

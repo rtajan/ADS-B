@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "build/")
+sys.path.insert(0, "../build/")
 import ads_b
 import numpy as np
 import streampu as spu

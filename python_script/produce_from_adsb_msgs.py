@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "build/")
+sys.path.insert(0, "../build/")
 import ads_b
 import numpy as np
 import streampu as spu
@@ -13,7 +13,7 @@ Ts = 1e-6
 simple_preamb = np.array([1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0], dtype=np.float64)
 preambule = np.kron(simple_preamb, np.ones(10))
 
-mat_contents = scipy.io.loadmat('adsb_msgs.mat')
+mat_contents = scipy.io.loadmat('../adsb_msgs.mat')
 data = mat_contents['adsb_msgs']
 
 msg_nb_ligne, msg_nb_colonne = data.shape
@@ -28,7 +28,7 @@ buff=np.array([],dtype=np.float64)
 # Module
 emit=ads_b.EmetteurPM(n_elmts,Fe,Ts)
 canal=ads_b.Canal(2400,10,int(Fe*Ts))
-sk=spu.sink_user_binary(64800,"Simple_Source_user",dtype=spu.float64)
+sk=spu.sink_user_binary(64800,"../Simple_Source_user",dtype=spu.float64)
 
 
 

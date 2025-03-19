@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "build/")
+sys.path.insert(0, "../build/")
 
 import ads_b
 import numpy as np
@@ -23,7 +23,7 @@ def affiche_carte(REF_LON, REF_LAT):
     y = np.linspace(44.4542, 45.1683, 1024)
 
     X, Y = np.meshgrid(x, y[::-1])
-    im = plt.imread('fond.png')
+    im = plt.imread('../fond.png')
     plt.imshow(im, extent=[-1.3581, 0.7128, 44.4542, 45.1683])
     plt.plot(REF_LON, REF_LAT, '.r', markersize=20)
     plt.text(REF_LON + 0.05, REF_LAT, 'Actual pos', color='b')
@@ -34,7 +34,7 @@ def affiche_carte(REF_LON, REF_LAT):
     plt.ylim([44.4542, 45.1683])
     #plt.show()
 
-mat_contents = scipy.io.loadmat('adsb_msgs.mat')
+mat_contents = scipy.io.loadmat('../adsb_msgs.mat')
 #print(mat_contents.keys())
 
 data = mat_contents['adsb_msgs']
@@ -106,7 +106,7 @@ plt.plot(coord[1, sanszerolat]+8,coord[0, sanszerolong], '--o', markerfacecolor=
 #plt.xlabel('Longitude')
 #plt.ylabel('Latitude')
 #plt.title('Carte des positions ADS-B')
-plt.savefig('carte_positions.png')
+plt.savefig('../carte_positions.png')
 #plt.show()
 
 seq = spu.Sequence(input.task)
