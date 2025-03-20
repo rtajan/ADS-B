@@ -61,7 +61,7 @@ PYBIND11_MODULE(ads_b, m)
         .def(py::init<const int, int>(), "n_elmts"_a, "isComplex"_a);
 
     py::class_<FIRFilter, spu::module::Stateful>(m, "FIRFilter")
-        .def(py::init<const int, const std::vector<double>&, int>(), "n_elmts"_a, "b"_a, "buffersize"_a);
+        .def(py::init<const int, const double*, int>(), "n_elmts"_a, "b"_a, "buffersize"_a);
 
     py::class_<AbsolueCarre, spu::module::Stateful>(m, "AbsolueCarre")
         .def(py::init<const int>(), "n_elmts"_a);
