@@ -46,8 +46,8 @@ Extract::Extract(const int n_elmts, const int rows, const int cols, const double
       });
 }
 
-void Extract::process(const double* intercorr, const int* indice, const double** sigs, double* tram) {
-    double* p_max = std::max_element(intercorr, intercorr + n_elmts);
+void Extract::process(const double* intercorr, const int* indice, double** sigs, double* tram) {
+    double* p_max = std::max_element((double*)intercorr, (double*)intercorr + n_elmts);
 
     if (size_buffer > 0 and voie != -1){
         for (int j=0; j< size_buffer; j++){
@@ -62,13 +62,13 @@ void Extract::process(const double* intercorr, const int* indice, const double**
     if (*p_max > seuil){
         if((p_max - intercorr)<8){  //arithmetique des pointeurs, a verifier
             for (int t=0; t< 448; t++){
-                tram[t]=sigs[indice][t+(p_max-intercorr)];
+                tram[t]=sigs[indice[0]][t+(p_max-intercorr)];
             }
         } else {
             size_buffer = 448-(p_max-intercorr);
-            voie = indice;
+            voie = indice[0];
             for (int k=0; k< size_buffer; k++){
-                buffer[k]=sigs[indice][t+(p_max-intercorr)];
+                buffer[k]=sigs[indice[0]][k+(p_max-intercorr)];
             }
         }
     } else{

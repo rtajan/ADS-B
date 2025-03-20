@@ -13,7 +13,7 @@ CorrSelect::CorrSelect(const int n_elmts)
     size_t ps_num2 = this->template create_socket_in<double>(p, "num2", this->n_elmts);
 
     size_t ps_denum1 = this->template create_socket_in<double>(p, "denum1", this->n_elmts);
-    size_t ps_denum2 = this->template create_socket_int<double>(p, "denum2", this->n_elmts);
+    size_t ps_denum2 = this->template create_socket_in<double>(p, "denum2", this->n_elmts);
 
     size_t ps_intercorr = this->template create_socket_out<double>(p, "intercorr", this->n_elmts);  // Create the output socket
     size_t ps_indice = this->template create_socket_out<int>(p, "indice", 1);

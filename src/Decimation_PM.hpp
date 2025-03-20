@@ -14,7 +14,7 @@ public:
     virtual ~DecimationPM() = default;
     void process(const double* input,
         double* voie1,
-        double* voie2,
+        double* voie2
         );
 
     int isComplex;

@@ -4,11 +4,14 @@
 #include "DetectCRC.hpp"
 #include "Bit2Register.hpp"
 #include "Decimation_PM.hpp"
-#include "Filter.hpp"
+#include "FIRFilter.hpp"
 #include "AbsolueCarre.hpp"
 #include "Decision_PM.hpp"
 #include "CorrSelect.hpp"
 #include "Extract.hpp"
+#include "Redirig.hpp"
+#include "DecodCoord.hpp"
+#include "DecodNom.hpp"
 #include <pybind11/pybind11.h>
 #include <streampu.hpp>
 #include <pybind11/numpy.h>
@@ -55,10 +58,10 @@ PYBIND11_MODULE(ads_b, m)
         .def(py::init<const int>(), "n_elmts"_a);
 
     py::class_<DecimationPM, spu::module::Stateful>(m, "DecimationPM")
-        .def(py::init<const int>(), "n_elmts"_a);
+        .def(py::init<const int, int>(), "n_elmts"_a, "isComplex"_a);
 
-    py::class_<Filter, spu::module::Stateful>(m, "Filter")
-        .def(py::init<const int, double*, const int>(), "n_elmts"_a, "h"_a, "size_h"_a);
+    py::class_<FIRFilter, spu::module::Stateful>(m, "FIRFilter")
+        .def(py::init<const int, const std::vector<double>&, int>(), "n_elmts"_a, "b"_a, "buffersize"_a);
 
     py::class_<AbsolueCarre, spu::module::Stateful>(m, "AbsolueCarre")
         .def(py::init<const int>(), "n_elmts"_a);
@@ -71,4 +74,13 @@ PYBIND11_MODULE(ads_b, m)
 
     py::class_<Extract, spu::module::Stateful>(m, "Extract")
         .def(py::init<const int, const int, const int, const double>(), "n_elmts"_a, "rows"_a, "cols"_a, "seuil"_a);
+
+    py::class_<Redirig, spu::module::Stateful>(m, "Redirig")
+        .def(py::init<const int>(), "n_elmts"_a);
+
+    py::class_<DecodCoord, spu::module::Stateful>(m, "DecodCoord")
+        .def(py::init<const int>(), "n_elmts"_a);
+
+    py::class_<DecodNom, spu::module::Stateful>(m, "DecodNom")
+        .def(py::init<const int>(), "n_elmts"_a);
 }

@@ -11,7 +11,7 @@ public:
 
     Extract(const int n_elmts, const int rows, const int cols, const double seuil);
     virtual ~Extract() = default;
-    void process(const double* intercorr, const int* indice, const double** sigs, double* tram);
+    void process(const double* intercorr, const int* indice, double** sigs, double* tram);
 
 private:
     double seuil;

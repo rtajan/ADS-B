@@ -21,7 +21,7 @@ DecimationPM::DecimationPM(const int n_elmts,int isComplex)
       p,
       [ps_input,
         ps_voie1,
-        ps_voie2,
+        ps_voie2
       ](spu::module::Module& m, spu::runtime::Task& t, const size_t frame_id) -> int
       {
           // Recover the Module and Sockets in the codelet
@@ -34,7 +34,7 @@ DecimationPM::DecimationPM(const int n_elmts,int isComplex)
           // Process the data
           decimationPM.process(input,
             voie1,
-            voie2,);
+            voie2);
           return spu::runtime::status_t::SUCCESS;
       });
 
@@ -49,7 +49,7 @@ void DecimationPM::process(const double* input,
     if (isComplex){
         for (int i=0; i<n_elmts; i++){
           int indice = (i%4)/2;
-          signaux[indice][(i+(1-(2*indice)))/2]=input[i]
+          signaux[indice][(i+(1-(2*indice)))/2]=input[i];
         }
     }
     else {
