@@ -1,7 +1,7 @@
 #include "FIRFilter.hpp"
 
 
-FIRFilter::FIRFilter(const int n_elmts,const double* b, int size_b)
+FIRFilter::FIRFilter(const int n_elmts,const std::vector<double>& b, int size_b)
         : Stateful()
         ,n_elmts(n_elmts)
         , b(size_b,0.0)
@@ -26,7 +26,7 @@ FIRFilter::FIRFilter(const int n_elmts,const double* b, int size_b)
 
     auto& p = this->create_task("process");                                                  // Create the task
     size_t ps_input = this->template create_socket_in<double>(p, "input", this->n_elmts);    // Create the input socket
-    size_t ps_output = this->template create_socket_out<double>(p, "output", size_b + this->n_elmts - 1);   // Create the output socket
+    size_t ps_output = this->template create_socket_out<double>(p, "output", this->n_elmts);   // Create the output socket
 
     // create the codelet
     this->create_codelet(

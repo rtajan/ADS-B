@@ -3,7 +3,10 @@
 
 #include <streampu.hpp>
 #include "mipp.h"
-
+#include <vector>
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+#include <pybind11/stl.h>
 
 
 class FIRFilter : public spu::module::Stateful {
@@ -12,7 +15,7 @@ protected:
 
 public:
 
-    FIRFilter(const int n_elmts,const double* b, int size_b);
+    FIRFilter(const int n_elmts,const std::vector<double>& b, int size_b);
     virtual ~FIRFilter() = default;
     void process(const double* input, double* output);
     inline void step(const double* x_elt, double* y_elt);

@@ -9,7 +9,7 @@ Extract::Extract(const int n_elmts, const int rows, const int cols, const double
     , seuil(seuil)
      {
 
-    buffer=new double[448];
+    buffer=new double[224];
     size_buffer=0;
     voie=-1;
 
@@ -22,7 +22,7 @@ Extract::Extract(const int n_elmts, const int rows, const int cols, const double
 
     size_t ps_sigs = this->template create_2d_socket_in<double>(p, "sigs", this->rows,this->cols);
 
-    size_t ps_tram = this->template create_socket_out<double>(p, "tram", 448);
+    size_t ps_tram = this->template create_socket_out<double>(p, "tram", 224);
 
     // create the codelet
     this->create_codelet(
@@ -54,18 +54,18 @@ void Extract::process(const double* intercorr, const int* indice, double** sigs,
             tram[j]=buffer[j];
         }
 
-        for (int i=0; i <(448-size_buffer); i++){
+        for (int i=0; i <(224-size_buffer); i++){
             tram[size_buffer+i]=sigs[voie][i];
         }
     }
 
     if (*p_max > seuil){
         if((p_max - intercorr)<8){  //arithmetique des pointeurs, a verifier
-            for (int t=0; t< 448; t++){
+            for (int t=0; t< 224; t++){
                 tram[t]=sigs[indice[0]][t+(p_max-intercorr)];
             }
         } else {
-            size_buffer = 448-(p_max-intercorr);
+            size_buffer = 224-(p_max-intercorr);
             voie = indice[0];
             for (int k=0; k< size_buffer; k++){
                 buffer[k]=sigs[indice[0]][k+(p_max-intercorr)];

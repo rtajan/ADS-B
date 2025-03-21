@@ -29,7 +29,7 @@ AbsolueCarre::AbsolueCarre(const int n_elmts)
 }
 
 void AbsolueCarre::process(const double* input, double* output) {
-    for (size_t i = 0; i < n_elmts; ++i) {
+    for (size_t i = 0; i < n_elmts/2; ++i) {
         output[i]=(input[i*2]*input[i*2])+(input[i*2 +1]*input[i*2 +1]);
     }
 }

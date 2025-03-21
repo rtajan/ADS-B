@@ -5,40 +5,59 @@ import numpy as np
 import streampu as spu
 
 # Parameters
-Fse= 20 #4
-
-h=np.array([1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],dtype=np.float64)
-print(h)
+Fse= 4 #20
 
 # Module
-src=spu.source_user_binary(64800,"Simple_Source_user",True,True,dtype=spu.float64)
-square_20   = ads_b.AbsolueCarre(2400)
-square_2    = ads_b.AbsolueCarre(256)
+src=spu.source_user(960,"../Source_User.txt",auto_reset=False,dtype=spu.float64)
 
-porte_F2    = ads_b.Filter(2400,h,10)
-porte_16ech_1= ads_b.Filter(241,[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],16)
-#porte_16ech_0= ads_b.Filter(240,[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,],16)
-#adapt_preamb0= ads_b.Filter(240,[0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0],16)
-adapt_preamb1= ads_b.Filter(241,[0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0],16)
+square_g    = ads_b.AbsolueCarre(960)
+#square_d    = ads_b.AbsolueCarre(480)
+#
+#porte_F2_d  = ads_b.FIRFilter(960,[1.0,0.0,1.0,0.0],4)
+#porte_F2_g  = ads_b.FIRFilter(480,[1.0,0.0,1.0,0.0],4)
+#porte_16ech_1= ads_b.FIRFilter(480,[1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0],32)
+#adapt_preamb1= ads_b.FIRFilter(960,[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0],32)
+#
+#decim_g     = ads_b.DecimationPM(480,0)
+#decim_d     = ads_b.DecimationPM(960,1)
+#
+#corr_select = ads_b.CorrSelect(240)
+#extrait     = ads_b.Extract(240, 2, 240, 0.8)
+#
+#decid       = ads_b.DecisionPM(224,0.5)
+#
+#redirig     = ads_b.Redirig(112)
+#decodnom    = ads_b.DecodNom(112)
+#decodcoord  = ads_b.DecodCoord(112)
 
-
-decim       = ads_b.DecimationPM(2409)
-
-select      = ads_b.Selector(10)
 
 
 # Process
-data=src["generate::out_data"]
-src["generate"].exec()
 
-list=data[0:120]
-input = spu.array(list,dtype=spu.float64)
+print("01")
+denum_step1 = square_g.process(src.generate.out_data)
+print("02")
+src.generate()
+print("02.1")
+print(src.generate.out_data)
+print("03")
 
-denum_p_square = square_20.process(input)
-num_p_f2 = porte_F2.process(input)
+#num_step1 = porte_F2_d.process(data)
+#
+#denum_step2 = porte_F2_g.process(denum_step1)
+#num_voie1,num_voie2 = decim_d.process(num_step1)
+#
+#
+#denum_voie1,denum_voie2 = decim_g.process(denum_step2)
 
-denum_p_f2 = porte_F2.process(denum_p_square)
-num_p_decim = decim.process(num_p_f2)
+
+#for i in range(Fse/2):
+
+#seq = spu.Sequence(src.generate)
+#seq.exec()
+
+
+
 
 
 
