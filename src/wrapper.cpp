@@ -12,6 +12,8 @@
 #include "Redirig.hpp"
 #include "DecodCoord.hpp"
 #include "DecodNom.hpp"
+#include "Corr.hpp"
+#include "SelectMax.hpp"
 
 #include <pybind11/pybind11.h>
 #include <streampu.hpp>
@@ -85,4 +87,11 @@ PYBIND11_MODULE(ads_b, m)
 
     py::class_<DecodNom, spu::module::Stateful>(m, "DecodNom")
         .def(py::init<const int>(), "n_elmts"_a);
+
+    py::class_<Corr, spu::module::Stateful>(m, "Corr")
+        .def(py::init<const int>(), "n_elmts"_a);
+
+    py::class_<SelectMax, spu::module::Stateful>(m, "SelectMax")
+        .def(py::init<const int,const std::vector<double>&>(), "n_elmts"_a, "init"_a);
+
 }
