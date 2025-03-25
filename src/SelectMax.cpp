@@ -42,6 +42,7 @@ SelectMax::SelectMax(const int n_elmts, const std::vector<double>& init)
 }
 
 void SelectMax::process(const double* intercorr, int* indice_in, double* max, int* indice_out) {
+    std::cout<<"Je suis dans process de selectMax"<<std::endl;
     bool voie_max = *std::max_element(intercorr, intercorr + n_elmts) > *std::max_element(this->init.begin(), this->init.end());
 
     if (voie_max){

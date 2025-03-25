@@ -74,6 +74,7 @@ void Extract::process(const double* intercorr, const int* indice, double** sigs,
     } else{
         size_buffer=0;
         voie=-1;
+        throw spu::tools::runtime_error(); // a verfier
     }
 
 

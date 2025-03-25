@@ -14,6 +14,7 @@
 #include "DecodNom.hpp"
 #include "Corr.hpp"
 #include "SelectMax.hpp"
+#include "Norme2.hpp"
 
 #include <pybind11/pybind11.h>
 #include <streampu.hpp>
@@ -94,4 +95,6 @@ PYBIND11_MODULE(ads_b, m)
     py::class_<SelectMax, spu::module::Stateful>(m, "SelectMax")
         .def(py::init<const int,const std::vector<double>&>(), "n_elmts"_a, "init"_a);
 
+    py::class_<Norme2, spu::module::Stateful>(m, "Norme2")
+        .def(py::init<const int>(), "n_elmts"_a);
 }
