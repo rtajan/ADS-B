@@ -54,7 +54,7 @@ void DetectCRC::process(double* tram, int* output) {
         }
     }
     output[0] = 1;
-    std::cout<<"isClear "<<output[0]<<std::endl;
+    //std::cout<<"isClear "<<output[0]<<std::endl;
 
     //return true;
 }

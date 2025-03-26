@@ -16,10 +16,10 @@ Bit2Register::Bit2Register(const int n_elmts)
         auto& p = this->create_task("process");                                                  // Create the task
         size_t ps_input = this->template create_socket_in<double>(p, "input", this->n_elmts);    // Create the input socket
 
-        size_t ps_adresse = this->template create_socket_out<int8_t>(p, "adresse", 32*sizeof(int8_t)); // Create the output socket
+        size_t ps_adresse = this->template create_socket_out<int8_t>(p, "adresse", 6*sizeof(int8_t)); // Create the output socket
         size_t ps_format = this->template create_socket_out<int>(p, "format", 1);
         size_t ps_type = this->template create_socket_out<int>(p, "type", 1);
-        size_t ps_nom = this->template create_socket_out<int8_t>(p, "nom", 32*sizeof(int8_t));
+        size_t ps_nom = this->template create_socket_out<int8_t>(p, "nom", 6*sizeof(int8_t));
         size_t ps_altitude = this->template create_socket_out<int>(p, "altitude", 1);
         size_t ps_timeFlag = this->template create_socket_out<int>(p, "timeFlag", 1);
         size_t ps_cprFlag = this->template create_socket_out<int>(p, "cprFlag", 1);
@@ -105,7 +105,7 @@ void Bit2Register::process(double * input,
         std::cout << nom << std::endl;
     }
 
-    std::cout<<"indicateur fin de process"<<std::endl;
+    //std::cout<<"indicateur fin de process"<<std::endl;
     //return registre;
 }
 
@@ -146,7 +146,7 @@ char Bit2Register::bin2carid(const std::vector<double>& bits) {
         std::reverse(extract.begin(), extract.end());
 
         int value = bin2dec(extract);
-        std::cout<< "valeur : "<<value<<std::endl;
+        //std::cout<< "valeur : "<<value<<std::endl;
 
         if (flipped_vect[5] == 0) {
             if (flipped_vect[4] == 0) {

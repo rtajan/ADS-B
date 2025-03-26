@@ -50,6 +50,10 @@ void Redirig::process(const double* tram, char adresse[16], int* indic) {
         indic[0]=0; //the data of the tram contains the name of the flight
     }
 
+    //for (int i=0; i<6; i++){
+    //    std::cerr<<"adresse car : "<<adresse[i]<<std::endl;
+    //}
+
 }
 
 int Redirig::bin2dec(const std::vector<double>& bits) {

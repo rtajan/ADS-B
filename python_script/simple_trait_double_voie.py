@@ -10,10 +10,6 @@ Fse     = 4
 seuil   = 0.8
 v0      = 0.5
 
-longitude   = 0.0
-altitude    = 0.0
-latitude    = 0.0
-
 # Module
 
 src=spu.source_user(960,"../Source_User.txt",auto_reset=False,dtype=spu.float64)
@@ -58,11 +54,11 @@ use_sig     = porte_F2.process(src.generate.out_data)
 pre_num     = porte_preamb.process(use_sig)
 num         = square_d.process(pre_num)
 
-decal_max   = selector.process(num,denum)
+decalage,max   = selector.process(num,denum)
 
 sig_norme   = norme.process(use_sig)
 
-tram        = extrait.process(decal_max,sig_norme)
+tram        = extrait.process(decalage,max,sig_norme)
 
 bits = decid.process(tram)
 isClear = detect.process(bits)
@@ -103,6 +99,8 @@ swi_clear["commute::in_data"] = bits
 swi_clear["commute::in_ctrl"] = spu.int8(isClear)
 adresse_sock, indic = redirig.process(swi_clear["commute::out_data1"])
 prb_addr(adresse_sock)
+
+
 
 swi_indic = spu.Switcher(2, bits.n_elmts, bits.dtype)
 swi_indic["commute::in_data"] = swi_clear["commute::out_data0"]
