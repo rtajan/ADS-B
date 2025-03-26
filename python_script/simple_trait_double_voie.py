@@ -68,6 +68,7 @@ bits = decid.process(tram)
 isClear = detect.process(bits)
 
 adresse_sock,indic = redirig.process(bits)
+"""
 if (indic[0][0]==1):
     altitude,longitude,latitude=decodcoord.process(bits)
 elif (indic[0][0]==0):
@@ -75,6 +76,7 @@ elif (indic[0][0]==0):
 
 #print(f"altitude : {altitude}")
 #print(f"nom : {str(nom_sock)}")
+"""
 
 # Affichage
 
@@ -83,7 +85,7 @@ rep = spu.Reporter_probe("Aircraft position", "")
 
 prb_lon = spu.probe_value(1, "longitude", None, dtype=spu.float64)
 prb_lat = spu.probe_value(1, "latitude", None, dtype=spu.float64)
-prb_alt = spu.probe_value(1, "altitude", None, dtype=spu.float64)
+prb_alt = spu.probe_value(1, "altitude", None, dtype=spu.int32)
 rep.register_probes([prb_lon, prb_lat, prb_alt])
 
 prb_addr = spu.probe_value(6, "adress", None, dtype=spu.int8)
@@ -93,10 +95,25 @@ prb_nom.str_display = True
 
 repg.register_probes([prb_addr, prb_nom])
 
+spu.Task.call_auto_exec = False  # (binding only zone)
+
+swi_clear = spu.Switcher(2, bits.n_elmts, bits.dtype)
+
+swi_clear["commute::in_data"] = bits
+swi_clear["commute::in_ctrl"] = spu.int8(isClear)
+adresse_sock, indic = redirig.process(swi_clear["commute::out_data1"])
+prb_addr(adresse_sock)
+
+swi_indic = spu.Switcher(2, bits.n_elmts, bits.dtype)
+swi_indic["commute::in_data"] = swi_clear["commute::out_data0"]
+swi_indic["commute::in_ctrl"] = spu.int8(indic)
+
+altitude, longitude, latitude = decodcoord.process(swi_indic["commute::out_data0"])
 prb_lon(longitude)
 prb_lat(latitude)
 prb_alt(altitude)
-prb_addr(adresse_sock)
+
+nom_sock = decodnom.process(swi_indic["commute::out_data1"])
 prb_nom(nom_sock)
 ter = spu.Terminal_dump([repg, rep])
 
