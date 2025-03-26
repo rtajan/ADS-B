@@ -52,6 +52,7 @@ denum       = porte_32.process(sig_reel)
 
 use_sig     = porte_F2.process(src.generate.out_data)
 pre_num     = porte_preamb.process(use_sig)
+#porte_preamb.process.debug = True
 num         = square_d.process(pre_num)
 
 decalage,max,_   = selector.process(num,denum)
