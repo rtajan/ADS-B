@@ -10,6 +10,10 @@ Fse     = 4
 seuil   = 0.8
 v0      = 0.5
 
+longitude   = 0.0
+altitude    = 0.0
+latitude    = 0.0
+
 # Module
 
 src=spu.source_user(960,"../Source_User.txt",auto_reset=False,dtype=spu.float64)
@@ -47,6 +51,7 @@ decodcoord  = ads_b.DecodCoord(112)
 # Process
 
 sig_reel    = square_g.process(src.generate.out_data)
+print(src.generate.out_data)
 denum       = porte_32.process(sig_reel)
 
 use_sig     = porte_F2.process(src.generate.out_data)
@@ -68,7 +73,8 @@ if (isClear):
     elif (indic[0][0]==0):
         nom_sock = decodnom.process(bits)
 
-
+print(f"altitude : {altitude}")
+print(f"nom : {str(nom_sock)}")
 
 # Affichage
 
