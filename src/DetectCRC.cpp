@@ -49,9 +49,12 @@ void DetectCRC::process(double* tram, int* output) {
     for (size_t i = tram_sans_crc.size() - 24; i < tram_sans_crc.size(); ++i) {
         if (tram_sans_crc[i]) {
             output[0] = 0;
-            //return false;
+            throw spu::tools::processing_aborted();
+            return; //false
         }
     }
     output[0] = 1;
+    std::cout<<"isClear "<<output[0]<<std::endl;
+
     //return true;
 }

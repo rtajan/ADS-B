@@ -67,7 +67,7 @@ void Extract::process(const int* decal_max, double* sigs, double* tram) {
     } else{
         size_buffer=0;
         voie=-1;
-        throw spu::tools::processing_aborted(); // a verfier
+        throw spu::tools::processing_aborted();
     }
 
 

@@ -66,12 +66,12 @@ tram        = extrait.process(decal_max,sig_norme)
 
 bits = decid.process(tram)
 isClear = detect.process(bits)
-if (isClear):
-    adresse_sock,indic = redirig.process(bits)
-    if (indic[0][0]==1):
-        altitude,longitude,latitude=decodcoord.process(bits)
-    elif (indic[0][0]==0):
-        nom_sock = decodnom.process(bits)
+
+adresse_sock,indic = redirig.process(bits)
+if (indic[0][0]==1):
+    altitude,longitude,latitude=decodcoord.process(bits)
+elif (indic[0][0]==0):
+    nom_sock = decodnom.process(bits)
 
 #print(f"altitude : {altitude}")
 #print(f"nom : {str(nom_sock)}")
