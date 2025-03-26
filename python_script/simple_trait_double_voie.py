@@ -51,7 +51,7 @@ decodcoord  = ads_b.DecodCoord(112)
 # Process
 
 sig_reel    = square_g.process(src.generate.out_data)
-print(src.generate.out_data)
+
 denum       = porte_32.process(sig_reel)
 
 use_sig     = porte_F2.process(src.generate.out_data)
@@ -73,8 +73,8 @@ if (isClear):
     elif (indic[0][0]==0):
         nom_sock = decodnom.process(bits)
 
-print(f"altitude : {altitude}")
-print(f"nom : {str(nom_sock)}")
+#print(f"altitude : {altitude}")
+#print(f"nom : {str(nom_sock)}")
 
 # Affichage
 
@@ -83,7 +83,7 @@ rep = spu.Reporter_probe("Aircraft position", "")
 
 prb_lon = spu.probe_value(1, "longitude", None, dtype=spu.float64)
 prb_lat = spu.probe_value(1, "latitude", None, dtype=spu.float64)
-prb_alt = spu.probe_value(1, "altitude", None, dtype=spu.int32)
+prb_alt = spu.probe_value(1, "altitude", None, dtype=spu.float64)
 rep.register_probes([prb_lon, prb_lat, prb_alt])
 
 prb_addr = spu.probe_value(6, "adress", None, dtype=spu.int8)
@@ -101,6 +101,8 @@ prb_nom(nom_sock)
 ter = spu.Terminal_dump([repg, rep])
 
 seq = spu.Sequence(src.generate)
+seq.export_dot("seq_double_voie.dot")
+
 
 ter.legend()
 seq.exec(ter)

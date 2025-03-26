@@ -12,7 +12,7 @@ DecodNom::DecodNom(const int n_elmts)
 
     auto& p = this->create_task("process");
     size_t ps_tram = this->template create_socket_in<double>(p, "tram", 112);
-    size_t ps_nom = this->template create_socket_out<int8_t>(p, "nom", 32*sizeof(int8_t));
+    size_t ps_nom = this->template create_socket_out<int8_t>(p, "nom", 6*sizeof(int8_t));
 
 
     // create the codelet
@@ -60,7 +60,7 @@ char DecodNom::bin2carid(const std::vector<double>& bits) {
         std::reverse(extract.begin(), extract.end());
 
         int value = bin2dec(extract);
-        std::cout<< "valeur : "<<value<<std::endl;
+        //std::cout<< "valeur : "<<value<<std::endl;
 
         if (flipped_vect[5] == 0) {
             if (flipped_vect[4] == 0) {

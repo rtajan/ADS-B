@@ -13,7 +13,7 @@ Redirig::Redirig(const int n_elmts)
     auto& p = this->create_task("process");
     size_t ps_tram = this->template create_socket_in<double>(p, "tram", 112);
 
-    size_t ps_adresse = this->template create_socket_out<int8_t>(p, "adresse", 32*sizeof(int8_t));
+    size_t ps_adresse = this->template create_socket_out<int8_t>(p, "adresse", 6*sizeof(int8_t));
     size_t ps_indic = this->template create_socket_out<int>(p,"indic",1);
 
     // create the codelet
