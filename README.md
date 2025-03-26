@@ -24,3 +24,7 @@ CMAKE_PREFIX_PATH=$(python -c "import streampu; print(streampu.get_cmake_dirs())
 
 
 An example of use is shown in the chaine_PM.py file
+
+
+The graph presenting the processing aimed to implement :
+![Diagramme](simple_double_voie.svg)
