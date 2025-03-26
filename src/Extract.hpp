@@ -9,14 +9,13 @@ protected:
 
 public:
 
-    Extract(const int n_elmts, const int rows, const int cols, const double seuil);
+    Extract(const int n_elmts, const int Fse, const double seuil);
     virtual ~Extract() = default;
-    void process(const double* intercorr, const int* indice, double** sigs, double* tram);
+    void process(const int* decal_max, double* sigs, double* tram);
 
 private:
     double seuil;
-    int rows;
-    int cols;
+    int Fse;
 
     double* buffer;
     int voie;

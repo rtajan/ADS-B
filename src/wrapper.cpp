@@ -15,6 +15,7 @@
 #include "Corr.hpp"
 #include "SelectMax.hpp"
 #include "Norme2.hpp"
+#include "Select.hpp"
 
 #include <pybind11/pybind11.h>
 #include <streampu.hpp>
@@ -78,7 +79,7 @@ PYBIND11_MODULE(ads_b, m)
         .def(py::init<const int>(), "n_elmts"_a);
 
     py::class_<Extract, spu::module::Stateful>(m, "Extract")
-        .def(py::init<const int, const int, const int, const double>(), "n_elmts"_a, "rows"_a, "cols"_a, "seuil"_a);
+        .def(py::init<const int, const int, const double>(), "n_elmts"_a, "Fse"_a, "seuil"_a);
 
     py::class_<Redirig, spu::module::Stateful>(m, "Redirig")
         .def(py::init<const int>(), "n_elmts"_a);
@@ -97,4 +98,8 @@ PYBIND11_MODULE(ads_b, m)
 
     py::class_<Norme2, spu::module::Stateful>(m, "Norme2")
         .def(py::init<const int>(), "n_elmts"_a);
+
+    py::class_<Select, spu::module::Stateful>(m, "Select")
+        .def(py::init<const int>(), "n_elmts"_a);
+
 }

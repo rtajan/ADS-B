@@ -4,6 +4,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 set(PYBIND11_NEWPYTHON ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
+include_directories(${CMAKE_SOURCE_DIR}/lib/include)
 find_package(pybind11 CONFIG REQUIRED )
 
 find_package(Threads REQUIRED)
