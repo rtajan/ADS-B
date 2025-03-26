@@ -13,11 +13,12 @@ Select::Select(const int n_elmts)
     size_t ps_denum = this->template create_socket_in<double>(p, "denum1", this->n_elmts);
     size_t ps_decalage = this->template create_socket_out<int>(p, "decalage", 1);  // Create the output socket
     size_t ps_max = this->template create_socket_out<int>(p, "max", 1);
+    size_t ps_intercorr = this->template create_socket_out<double>(p, "intercorr", this->n_elmts);
 
     // create the codelet
     this->create_codelet(
       p,
-      [ps_num, ps_denum, ps_decalage, ps_max](spu::module::Module& m, spu::runtime::Task& t, const size_t frame_id) -> int
+      [ps_num, ps_denum, ps_decalage, ps_max, ps_intercorr](spu::module::Module& m, spu::runtime::Task& t, const size_t frame_id) -> int
       {
           // Recover the Module and Sockets in the codelet
           auto& select = static_cast<Select&>(m);
@@ -26,15 +27,16 @@ Select::Select(const int n_elmts)
           double* denum = (double*)(t[ps_denum].get_dataptr());
           int* decalage = (int*)(t[ps_decalage].get_dataptr());
           int* max = (int*)(t[ps_max].get_dataptr());
+          double* intercorr = (double*)(t[ps_intercorr].get_dataptr());
 
           // Process the data
-          select.process(num,denum,decalage,max);
+          select.process(num,denum,decalage,max, intercorr);
           return spu::runtime::status_t::SUCCESS;
       });
 }
 
-void Select::process(const double* num, const double* denum, int* decalage, int* max) {
-    double intercorr[n_elmts];
+void Select::process(const double* num, const double* denum, int* decalage, int* max, double* intercorr) {
+    //double intercorr[n_elmts];
     for (int i=0; i<n_elmts; i++){
         intercorr[i]=num[i]/denum[i];
     }
