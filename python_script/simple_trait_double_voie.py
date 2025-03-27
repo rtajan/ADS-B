@@ -1,71 +1,74 @@
 import sys
-sys.path.insert(0, "../build/")
+
+sys.path.insert(0, "build/")
 import ads_b
 import numpy as np
 import streampu as spu
 
 # Parameters
 
-Fse     = 4
-seuil   = 0.8
-v0      = 0.5
+Fse = 4
+seuil = 0.8
+v0 = 0.5
 
 # Module
 
-src=spu.source_user(960,"../Source_User.txt",auto_reset=False,dtype=spu.float64)
+src = spu.source_user(960, "buffers.txt", auto_reset=False, dtype=spu.float64)
 
-square_g    = ads_b.AbsolueCarre(960)
-square_d    = ads_b.AbsolueCarre(960)
+square_g = ads_b.AbsolueCarre(960)
+square_d = ads_b.AbsolueCarre(960)
 
-porte_F2    = ads_b.FIRFilter(960,[1.0,0.0,1.0,0.0],4)
+porte_F2 = ads_b.FIRFilter(960, [1.0, 0.0, 1.0, 0.0], 4)
 
-array_32    = np.ones(32,dtype=np.float64)
-porte_32    = ads_b.FIRFilter(480,array_32,32)
+array_32 = np.ones(32, dtype=np.float64)
+porte_32 = ads_b.FIRFilter(480, array_32, 32)
 
-part1_0     = [1.0,0.0,0.0,0.0]
-part0_0     = [0.0,0.0,0.0,0.0]
-part0_1     = [0.0,0.0,1.0,0.0]
-preamb_array_reel=  np.concatenate([part1_0,part1_0,part0_0,part0_1,part0_1,part0_0,part0_0,part0_0])
+part1_0 = [1.0, 0.0, 0.0, 0.0]
+part0_0 = [0.0, 0.0, 0.0, 0.0]
+part0_1 = [0.0, 0.0, 1.0, 0.0]
+preamb_array_reel = np.concatenate(
+    [part1_0, part1_0, part0_0, part0_1, part0_1, part0_0, part0_0, part0_0]
+)
 preamb_array = np.empty(len(preamb_array_reel) * 2)
-preamb_array[::2] = preamb_array_reel
-preamb_array[1::2] = 0.0 #this signal is complex [reel, imag ...]
-porte_preamb= ads_b.FIRFilter(960,preamb_array,64)
+preamb_array[::2] = preamb_array_reel[::-1]
+preamb_array[1::2] = 0.0  # this signal is complex [reel, imag ...]
+porte_preamb = ads_b.FIRFilter(960, preamb_array, 64)
 
-norme       = ads_b.Norme2(960)
+norme = ads_b.Norme2(960)
 
-selector    = ads_b.Select(480)
-extrait     = ads_b.Extract(480,Fse,seuil)
+selector = ads_b.Select(480)
+extrait = ads_b.Extract(480, Fse, seuil)
 
-decid       = ads_b.DecisionPM(224,v0)
-detect      = ads_b.DetectCRC(112)
+decid = ads_b.DecisionPM(224, v0)
+detect = ads_b.DetectCRC(112)
 
-redirig     = ads_b.Redirig(112)
-decodnom    = ads_b.DecodNom(112)
-decodcoord  = ads_b.DecodCoord(112)
+redirig = ads_b.Redirig(112)
+decodnom = ads_b.DecodNom(112)
+decodcoord = ads_b.DecodCoord(112)
 
 
 # Process
 
-sig_reel    = square_g.process(src.generate.out_data)
+sig_reel = square_g.process(src.generate.out_data)
 
-denum       = porte_32.process(sig_reel)
+denum = porte_32.process(sig_reel)
 
-use_sig     = porte_F2.process(src.generate.out_data)
-pre_num     = porte_preamb.process(use_sig)
-#porte_preamb.process.debug = True
-num         = square_d.process(pre_num)
+use_sig = porte_F2.process(src.generate.out_data)
+pre_num = porte_preamb.process(use_sig)
+# porte_preamb.process.debug = True
+num = square_d.process(pre_num)
 
-decalage,max,_   = selector.process(num,denum)
-selector.process.debug = True
+decalage, max, _ = selector.process(num, denum)
+# selector.process.debug = True
 
-sig_norme   = norme.process(use_sig)
+sig_norme = norme.process(use_sig)
 
-tram        = extrait.process(decalage,max,sig_norme)
+tram = extrait.process(decalage, max, sig_norme)
 
 bits = decid.process(tram)
 isClear = detect.process(bits)
 
-adresse_sock,indic = redirig.process(bits)
+adresse_sock, indic = redirig.process(bits)
 """
 if (indic[0][0]==1):
     altitude,longitude,latitude=decodcoord.process(bits)
@@ -103,7 +106,6 @@ adresse_sock, indic = redirig.process(swi_clear["commute::out_data1"])
 prb_addr(adresse_sock)
 
 
-
 swi_indic = spu.Switcher(2, bits.n_elmts, bits.dtype)
 swi_indic["commute::in_data"] = swi_clear["commute::out_data0"]
 swi_indic["commute::in_ctrl"] = spu.int8(indic)
@@ -123,3 +125,4 @@ seq.export_dot("seq_double_voie.dot")
 
 ter.legend()
 seq.exec(ter)
+seq.show_stats()

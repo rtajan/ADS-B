@@ -69,7 +69,7 @@ void Extract::process(const int* decalage, const int* max, double* sigs, double*
     } else{
         size_buffer=0;
         voie=-1;
-        throw spu::tools::processing_aborted();
+        throw spu::tools::processing_aborted(__FILE__, __LINE__, __func__, "No frame found.");
     }
 
 
