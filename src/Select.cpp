@@ -1,9 +1,10 @@
 #include "Select.hpp"
 
 
-Select::Select(const int n_elmts)
+Select::Select(const int n_elmts, double energie_preamb)
     : Stateful()
-    , n_elmts(n_elmts) {
+    , n_elmts(n_elmts)
+    , energie_preamb(energie_preamb) {
 
     const std::string name = "Select";
     this->set_name(name);
@@ -37,6 +38,8 @@ Select::Select(const int n_elmts)
 
 void Select::process(const double* num, const double* denum, int* decalage, double* max, double* intercorr) {
 
+    //std::cerr<<" enegie preamb "<<this->energie_preamb<<std::endl;
+
     max[0]=0.0;
     decalage[0]=0;
 
@@ -44,15 +47,17 @@ void Select::process(const double* num, const double* denum, int* decalage, doub
         if (denum[i]==0){
             intercorr[i]=0.0;
         } else {
-            intercorr[i]=num[i]/denum[i];
+            intercorr[i]=num[i]/(denum[i]*this->energie_preamb);
             if (intercorr[i]>max[0]){
                 max[0]=intercorr[i];
                 decalage[0]=i;
             }
         }
+        //std::cerr<<"i : "<<i<<" | intercorr "<<intercorr[i]<<" | denominateur "<<denum[i]<<std::endl;
     }
     //double* p_max = std::max_element(intercorr, intercorr + n_elmts);
     //decalage[0] = (p_max - intercorr);
     //max[0] = *p_max;
     //std::cerr<<"decalage : "<<decalage[0]<<" max : "<<max[0]<<std::endl;
+    //throw spu::tools::runtime_error();
 }

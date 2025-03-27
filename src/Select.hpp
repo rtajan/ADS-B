@@ -9,9 +9,12 @@ protected:
 
 public:
 
-    Select(const int n_elmts);
+    Select(const int n_elmts, double energie_preamb);
     virtual ~Select() = default;
     void process(const double* num, const double* denum, int* decalage, double* max, double* intercorr);
+
+private:
+    double energie_preamb;
 
 };
 

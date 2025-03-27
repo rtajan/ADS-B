@@ -45,9 +45,11 @@ extrait     = ads_b.Extract(480,Fse,seuil)
 decid       = ads_b.DecisionPM(224,v0)
 detect      = ads_b.DetectCRC(112)
 
-redirig     = ads_b.Redirig(112)
-decodnom    = ads_b.DecodNom(112)
-decodcoord  = ads_b.DecodCoord(112)
+convert     = ads_b.Bit2Register(112)
+
+#redirig     = ads_b.Redirig(112)
+#decodnom    = ads_b.DecodNom(112)
+#decodcoord  = ads_b.DecodCoord(112)
 
 
 # Process
@@ -70,19 +72,21 @@ tram        = extrait.process(decalage,max,sig_norme)
 
 bits = decid.process(tram)
 isClear = detect.process(bits)
-
-#adresse_sock,indic = redirig.process(bits) #two times here
-"""
-if (indic[0][0]==1):
-    altitude,longitude,latitude=decodcoord.process(bits)
-elif (indic[0][0]==0):
-    nom_sock = decodnom.process(bits)
-
-#print(f"altitude : {altitude}")
-#print(f"nom : {str(nom_sock)}")
-"""
+print(f" isClear = {isClear}")
 
 # Affichage
+
+(
+    adresse_sock,
+    format_list,
+    type_sock,
+    nom_sock,
+    altitude_sock,
+    timeFlag_sock,
+    cprFlag_sock,
+    latitude_sock,
+    longitude_sock,
+) = convert.process(bits)
 
 repg = spu.Reporter_probe("Aircraft Genral infos", "")
 rep = spu.Reporter_probe("Aircraft position", "")
@@ -99,33 +103,20 @@ prb_nom.str_display = True
 
 repg.register_probes([prb_addr, prb_nom])
 
-spu.Task.call_auto_exec = False  # (binding only zone)
-
-swi_clear = spu.Switcher(2, bits.n_elmts, bits.dtype)
-
-swi_clear["commute::in_data"] = bits
-swi_clear["commute::in_ctrl"] = spu.int8(isClear)
-adresse_sock, indic = redirig.process(swi_clear["commute::out_data1"])
+prb_lon(longitude_sock)
+prb_lat(latitude_sock)
+prb_alt(altitude_sock)
 prb_addr(adresse_sock)
-
-
-
-swi_indic = spu.Switcher(2, bits.n_elmts, bits.dtype)
-swi_indic["commute::in_data"] = swi_clear["commute::out_data0"]
-swi_indic["commute::in_ctrl"] = spu.int8(indic)
-
-altitude, longitude, latitude = decodcoord.process(swi_indic["commute::out_data0"])
-prb_lon(longitude)
-prb_lat(latitude)
-prb_alt(altitude)
-
-nom_sock = decodnom.process(swi_indic["commute::out_data1"])
 prb_nom(nom_sock)
 ter = spu.Terminal_dump([repg, rep])
 
+
+# Sequence :
 seq = spu.Sequence(src.generate)
-seq.export_dot("seq_double_voie.dot")
+seq.export_dot("sequence_read.dot")
 
 
 ter.legend()
+
 seq.exec(ter)
+

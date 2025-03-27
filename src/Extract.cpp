@@ -72,5 +72,18 @@ void Extract::process(const int* decalage, const double* max, double* sigs, doub
         throw spu::tools::processing_aborted();
     }
 
+    if (isEmpty(tram,112)){
+        throw spu::tools::processing_aborted();
+    }
 
+}
+
+
+bool Extract::isEmpty(double* input, int taille){
+    for (int i=0; i<taille; i++){
+        if (input[i] != 0.0){
+            return false;
+        }
+    }
+    return true;
 }
