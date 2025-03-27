@@ -11,7 +11,7 @@ public:
 
     Extract(const int n_elmts, const int Fse, const double seuil);
     virtual ~Extract() = default;
-    void process(const int* decalage, const int* max, double* sigs, double* tram);
+    void process(const int* decalage, const double* max, double* sigs, double* tram);
 
 private:
     double seuil;

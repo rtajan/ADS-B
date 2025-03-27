@@ -17,7 +17,7 @@ Extract::Extract(const int n_elmts, const int Fse, const double seuil)
 
     auto& p = this->create_task("process");
     size_t ps_decalage = this->template create_socket_in<int>(p, "decalage", 1);
-    size_t ps_max = this->template create_socket_in<int>(p, "max", 1);
+    size_t ps_max = this->template create_socket_in<double>(p, "max", 1);
     size_t ps_sigs = this->template create_socket_in<double>(p, "sigs", this->n_elmts);
 
     size_t ps_tram = this->template create_socket_out<double>(p, "tram", 224);
@@ -30,7 +30,7 @@ Extract::Extract(const int n_elmts, const int Fse, const double seuil)
           // Recover the Module and Sockets in the codelet
           auto& extract = static_cast<Extract&>(m);
           int* decalage = (int*)(t[ps_decalage].get_dataptr());
-          int* max = (int*)(t[ps_max].get_dataptr());
+          double* max = (double*)(t[ps_max].get_dataptr());
           double* sigs = (double*)(t[ps_sigs].get_dataptr());
           double* tram = (double*)(t[ps_tram].get_dataptr());
 
@@ -41,7 +41,7 @@ Extract::Extract(const int n_elmts, const int Fse, const double seuil)
       });
 }
 
-void Extract::process(const int* decalage, const int* max, double* sigs, double* tram) {
+void Extract::process(const int* decalage, const double* max, double* sigs, double* tram) {
     int voie_sig =  decalage[0] % (this->Fse /2);
 
     if (size_buffer > 0 and voie != -1){

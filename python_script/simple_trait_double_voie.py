@@ -56,7 +56,7 @@ pre_num     = porte_preamb.process(use_sig)
 num         = square_d.process(pre_num)
 
 decalage,max,_   = selector.process(num,denum)
-selector.process.debug = True
+#selector.process.debug = True
 
 sig_norme   = norme.process(use_sig)
 

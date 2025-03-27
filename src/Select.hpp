@@ -11,7 +11,7 @@ public:
 
     Select(const int n_elmts);
     virtual ~Select() = default;
-    void process(const double* num, const double* denum, int* decalage, int* max, double* intercorr);
+    void process(const double* num, const double* denum, int* decalage, double* max, double* intercorr);
 
 };
 
