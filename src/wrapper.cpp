@@ -101,6 +101,6 @@ PYBIND11_MODULE(ads_b, m)
         .def(py::init<const int>(), "n_elmts"_a);
 
     py::class_<Select, spu::module::Stateful>(m, "Select")
-        .def(py::init<const int>(), "n_elmts"_a);
+        .def(py::init<const int, double>(), "n_elmts"_a, "energie_preamb"_a);
 
 }

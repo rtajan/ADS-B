@@ -1,9 +1,10 @@
 #include "Select.hpp"
 
 
-Select::Select(const int n_elmts)
+Select::Select(const int n_elmts, double energie_preamb)
     : Stateful()
-    , n_elmts(n_elmts) {
+    , n_elmts(n_elmts)
+    , energie_preamb(energie_preamb) {
 
     const std::string name = "Select";
     this->set_name(name);
@@ -12,7 +13,7 @@ Select::Select(const int n_elmts)
     size_t ps_num = this->template create_socket_in<double>(p, "num1", this->n_elmts);    // Create the input socket
     size_t ps_denum = this->template create_socket_in<double>(p, "denum1", this->n_elmts);
     size_t ps_decalage = this->template create_socket_out<int>(p, "decalage", 1);  // Create the output socket
-    size_t ps_max = this->template create_socket_out<int>(p, "max", 1);
+    size_t ps_max = this->template create_socket_out<double>(p, "max", 1);
     size_t ps_intercorr = this->template create_socket_out<double>(p, "intercorr", this->n_elmts);
 
     // create the codelet
@@ -26,7 +27,7 @@ Select::Select(const int n_elmts)
           double* num = (double*)(t[ps_num].get_dataptr());
           double* denum = (double*)(t[ps_denum].get_dataptr());
           int* decalage = (int*)(t[ps_decalage].get_dataptr());
-          int* max = (int*)(t[ps_max].get_dataptr());
+          double* max = (double*)(t[ps_max].get_dataptr());
           double* intercorr = (double*)(t[ps_intercorr].get_dataptr());
 
           // Process the data
@@ -35,12 +36,28 @@ Select::Select(const int n_elmts)
       });
 }
 
-void Select::process(const double* num, const double* denum, int* decalage, int* max, double* intercorr) {
-    //double intercorr[n_elmts];
+void Select::process(const double* num, const double* denum, int* decalage, double* max, double* intercorr) {
+
+    //std::cerr<<" enegie preamb "<<this->energie_preamb<<std::endl;
+
+    max[0]=0.0;
+    decalage[0]=0;
+
     for (int i=0; i<n_elmts; i++){
-        intercorr[i]=num[i]/denum[i];
+        if (denum[i]==0){
+            intercorr[i]=0.0;
+        } else {
+            intercorr[i]=num[i]/(denum[i]*this->energie_preamb);
+            if (intercorr[i]>max[0]){
+                max[0]=intercorr[i];
+                decalage[0]=i;
+            }
+        }
+        //std::cerr<<"i : "<<i<<" | intercorr "<<intercorr[i]<<" | denominateur "<<denum[i]<<std::endl;
     }
-    double* p_max = std::max_element(intercorr, intercorr + n_elmts);
-    decalage[0] = (p_max - intercorr);
-    max[0] = *p_max;
+    //double* p_max = std::max_element(intercorr, intercorr + n_elmts);
+    //decalage[0] = (p_max - intercorr);
+    //max[0] = *p_max;
+    //std::cerr<<"decalage : "<<decalage[0]<<" max : "<<max[0]<<std::endl;
+    //throw spu::tools::runtime_error();
 }

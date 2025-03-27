@@ -8,8 +8,17 @@ import streampu as spu
 # Parameters
 
 Fse = 4
-seuil = 0.8
+seuil = 0.7
 v0 = 0.5
+
+part11_00 = [1.0, 1.0, 0.0, 0.0]
+part0_0 = [0.0, 0.0, 0.0, 0.0]
+part00_11 = [0.0, 0.0, 1.0, 1.0]
+preambule = np.concatenate(
+    [part11_00, part11_00, part0_0, part00_11, part00_11, part0_0, part0_0, part0_0]
+)
+energie_preamb = np.sqrt(np.sum(preambule))
+print(f"energie_preamb : {energie_preamb}")
 
 # Module
 
@@ -24,7 +33,6 @@ array_32 = np.ones(32, dtype=np.float64)
 porte_32 = ads_b.FIRFilter(480, array_32, 32)
 
 part1_0 = [1.0, 0.0, 0.0, 0.0]
-part0_0 = [0.0, 0.0, 0.0, 0.0]
 part0_1 = [0.0, 0.0, 1.0, 0.0]
 preamb_array_reel = np.concatenate(
     [part1_0, part1_0, part0_0, part0_1, part0_1, part0_0, part0_0, part0_0]
@@ -36,7 +44,7 @@ porte_preamb = ads_b.FIRFilter(960, preamb_array, 64)
 
 norme = ads_b.Norme2(960)
 
-selector = ads_b.Select(480)
+selector = ads_b.Select(480, energie_preamb)
 extrait = ads_b.Extract(480, Fse, seuil)
 
 decid = ads_b.DecisionPM(224, v0)
@@ -49,8 +57,8 @@ decodcoord = ads_b.DecodCoord(112)
 
 # Process
 
-sig_reel = square_g.process(src.generate.out_data)
-
+frame, _ = src.generate()  # Ça exécute la tâche en plus d'un binding éventuel
+sig_reel = square_g.process(frame)
 denum = porte_32.process(sig_reel)
 
 use_sig = porte_F2.process(src.generate.out_data)
@@ -68,7 +76,7 @@ tram = extrait.process(decalage, max, sig_norme)
 bits = decid.process(tram)
 isClear = detect.process(bits)
 
-adresse_sock, indic = redirig.process(bits)
+# adresse_sock,indic = redirig.process(bits) #two times here
 """
 if (indic[0][0]==1):
     altitude,longitude,latitude=decodcoord.process(bits)
@@ -122,7 +130,9 @@ ter = spu.Terminal_dump([repg, rep])
 seq = spu.Sequence(src.generate)
 seq.export_dot("seq_double_voie.dot")
 
-
+for lt in seq.get_tasks_per_threads():
+    for t in lt:
+        t.stats = True
 ter.legend()
 seq.exec(ter)
 seq.show_stats()
