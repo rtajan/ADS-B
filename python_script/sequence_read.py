@@ -39,6 +39,7 @@ src = spu.source_user(112, "../trames.txt", auto_reset=False, dtype=spu.float64)
 # print(input)
 # Process :
 isClear = detect.process(src.generate.out_data)
+print(f" isClear = {isClear}")
 print(src.generate.out_data)
 (
     adresse_sock,

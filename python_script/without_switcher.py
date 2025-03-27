@@ -47,11 +47,6 @@ detect      = ads_b.DetectCRC(112)
 
 convert     = ads_b.Bit2Register(112)
 
-#redirig     = ads_b.Redirig(112)
-#decodnom    = ads_b.DecodNom(112)
-#decodcoord  = ads_b.DecodCoord(112)
-
-
 # Process
 
 frame, _ = src.generate()  # Ça exécute la tâche en plus d'un binding éventuel

@@ -102,7 +102,7 @@ void Bit2Register::process(double * input,
             nom[i] = bin2carid(charBits);
         }
         //nom = nom;
-        std::cout << nom << std::endl;
+        //std::cout << nom << std::endl;
     }
 
     //std::cout<<"indicateur fin de process"<<std::endl;
