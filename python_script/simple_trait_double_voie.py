@@ -7,7 +7,7 @@ import streampu as spu
 # Parameters
 
 Fse     = 4
-seuil   = 0.8
+seuil   = 0.7
 v0      = 0.5
 
 # Module
@@ -65,7 +65,7 @@ tram        = extrait.process(decalage,max,sig_norme)
 bits = decid.process(tram)
 isClear = detect.process(bits)
 
-adresse_sock,indic = redirig.process(bits)
+#adresse_sock,indic = redirig.process(bits) #two times here
 """
 if (indic[0][0]==1):
     altitude,longitude,latitude=decodcoord.process(bits)
